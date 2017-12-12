@@ -14,10 +14,11 @@
 # Inputs:       string s
 # Outputs:      N/A
 # Description:  Parses the binary string given as input
-#               and seperates the string into various
+#               and separates the string into various
 #               data based upon the decided string
 #               format.
 #######################################################
+
 def string_parser(guideString, localString):
     
     # Separate Guide Data
@@ -81,23 +82,82 @@ def string_parser(guideString, localString):
     # Calculate Controls
     #get_motor_commands(someInputs)
 
+## --- Guide Data Packet Getters --- ##
+def getGuideAvePtpFlag(guideString): 
+	return guideString[0]
 
-## main ###############################################
-# Inputs:       N/A
-# Outputs:      N/A
-# Description:  Simply takes "inString" and "outString"
-#               and passes them into the function
-#               "string_parser". (to be updated...)
-#######################################################
+def getGuideLeaderFollowerFlag(guideString): 
+	return guideString[1]
 
-def main():
-    #while (1):
-    #outString = get_local_data(localPTPaddress)
-    outString = "0010101010101010101010101010101010101010101010101010101010101011010101010101010101010101010101010101010101010101010101010110101101010101010101010101010101010101010101010101101011010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101"
-    #send_local_data(outString)
-    #inString = get_guide_data(WIFIaddress)
-    inString = "0110101010101010101010101010101010101010101010101010101010101011010101010101010101010101010101010101010101010101010101010110101101010101010101010101010101010101010101010101101011010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101"
-    string_parser(inString, outString)
+def getGuidePositionInConvoy(guideString): 
+	return guideString[2:81]
 
-main()
-    
+def getGuideEmergencyStop(guideString): 
+	return guideString[82]
+
+def getGuideLocation(guideString): 
+	return guideString[83:112]
+
+def getGuideLineOfBearing(guideString): 
+	return guideString[113:128]
+
+def getGuideVelocityX(guideString): 
+	return guideString[129:160]
+
+def getGuideVelocityY(guideString): 
+	return guideString[161:192]
+
+def getGuideVelocityZ(guideString): 
+	return guideString[193:224]
+
+def getGuideAccelerationX(guideString): 
+	return guideString[225:256]
+
+def getGuideAccelerationY(guideString): 
+	return guideString[257:288]
+
+def getGuideAccelerationZ(guideString): 
+	return guideString[289:320]
+
+def getGuideExtraData(guideString): 
+	return guideString[321:]
+## --- Local Data Packet Getters --- ##
+
+def getLocalAvePtpFlag(localString): 
+	return localString[0]
+
+def getLocalLeaderFollowerFlag(localString): 
+	return localString[1]
+
+def getLocalPositionInConvoy(localString): 
+	return localString[2:81]
+
+def getLocalEmergencyStop(localString): 
+	return localString[82]
+
+def getLocalLocation(localString): 
+	return localString[83:112]
+
+def getLocalLineOfBearing(localString): 
+	return localString[113:128]
+
+def getLocalVelocityX(localString): 
+	return localString[129:160]
+
+def getLocalVelocityY(localString): 
+	return localString[161:192]
+
+def getLocalVelocityZ(localString): 
+	return localString[193:224]
+
+def getLocalAccelerationX(localString): 
+	return localString[225:256]
+
+def getLocalAccelerationY(localString): 
+	return localString[257:288]
+
+def getLocalAccelerationZ(localString): 
+	return localString[289:320]
+
+def getLocalExtraData(localString): 
+	return localString[321:]
