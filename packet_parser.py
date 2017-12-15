@@ -11,16 +11,15 @@
 #######################################################
 
 ## string_parser ######################################
-# Inputs:       string s
+# Inputs:       string localString, string guideString
 # Outputs:      N/A
 # Description:  Parses the binary string given as input
 #               and separates the string into various
 #               data based upon the decided string
 #               format.
 #######################################################
+def string_parser(localString, guideString):
 
-def string_parser(guideString, localString):
-    
     # Separate Guide Data
     GuideAvePtpFlag = guideString[0]
     GuideLeaderFollowerFlag = guideString[1]
@@ -79,85 +78,134 @@ def string_parser(guideString, localString):
     print("GuideExtraData: " + GuideExtraData)
     print("LocalExtraData: " + LocalExtraData)
 
-    # Calculate Controls
-    #get_motor_commands(someInputs)
 
-## --- Guide Data Packet Getters --- ##
-def getGuideAvePtpFlag(guideString): 
-	return guideString[0]
+## getAvePtpFlag ######################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getAvePtpFlag(dataString):
+	return dataString[0]
 
-def getGuideLeaderFollowerFlag(guideString): 
-	return guideString[1]
+## getLeaderFollowerFlag ##############################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getLeaderFollowerFlag(dataString):
+	return dataString[1]
 
-def getGuidePositionInConvoy(guideString): 
-	return guideString[2:81]
+## getPositionInConvoy ################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getPositionInConvoy(dataString):
+	return dataString[2:81]
 
-def getGuideEmergencyStop(guideString): 
-	return guideString[82]
+## getEmergencyStop ###################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getEmergencyStop(dataString):
+	return dataString[82]
 
-def getGuideLocation(guideString): 
-	return guideString[83:112]
+## getLocation ########################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getLocation(dataString):
+	return dataString[83:112]
 
-def getGuideLineOfBearing(guideString): 
-	return guideString[113:128]
+## getLineOfBearing ###################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getLineOfBearing(dataString):
+	return dataString[113:128]
 
-def getGuideVelocityX(guideString): 
-	return guideString[129:160]
+## getVelocityX #######################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getVelocityX(dataString):
+	return dataString[129:160]
 
-def getGuideVelocityY(guideString): 
-	return guideString[161:192]
+## getVelocityY #######################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getVelocityY(dataString):
+	return dataString[161:192]
 
-def getGuideVelocityZ(guideString): 
-	return guideString[193:224]
+## getVelocityZ #######################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getVelocityZ(dataString):
+	return dataString[193:224]
 
-def getGuideAccelerationX(guideString): 
-	return guideString[225:256]
+## getAccelerationX ###################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getAccelerationX(dataString):
+	return dataString[225:256]
 
-def getGuideAccelerationY(guideString): 
-	return guideString[257:288]
+## getAccelerationY ###################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getAccelerationY(dataString):
+	return dataString[257:288]
 
-def getGuideAccelerationZ(guideString): 
-	return guideString[289:320]
+## getAccelerationZ ###################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getAccelerationZ(dataString):
+	return dataString[289:320]
 
-def getGuideExtraData(guideString): 
-	return guideString[321:]
-## --- Local Data Packet Getters --- ##
+## getExtraData #######################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getExtraData(dataString):
+	return dataString[321:]
 
-def getLocalAvePtpFlag(localString): 
-	return localString[0]
-
-def getLocalLeaderFollowerFlag(localString): 
-	return localString[1]
-
-def getLocalPositionInConvoy(localString): 
-	return localString[2:81]
-
-def getLocalEmergencyStop(localString): 
-	return localString[82]
-
-def getLocalLocation(localString): 
-	return localString[83:112]
-
-def getLocalLineOfBearing(localString): 
-	return localString[113:128]
-
-def getLocalVelocityX(localString): 
-	return localString[129:160]
-
-def getLocalVelocityY(localString): 
-	return localString[161:192]
-
-def getLocalVelocityZ(localString): 
-	return localString[193:224]
-
-def getLocalAccelerationX(localString): 
-	return localString[225:256]
-
-def getLocalAccelerationY(localString): 
-	return localString[257:288]
-
-def getLocalAccelerationZ(localString): 
-	return localString[289:320]
-
-def getLocalExtraData(localString): 
-	return localString[321:]
