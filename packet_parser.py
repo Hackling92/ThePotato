@@ -10,74 +10,45 @@
 #               AVE unit
 #######################################################
 
-## string_parser ######################################
-# Inputs:       string localString, string guideString
+## getPacket ##########################################
+# Inputs:       string dataString
 # Outputs:      N/A
 # Description:  Parses the binary string given as input
 #               and separates the string into various
 #               data based upon the decided string
 #               format.
 #######################################################
-def string_parser(localString, guideString):
+def getPacket(dataString):
 
-    # Separate Guide Data
-    GuideAvePtpFlag = guideString[0]
-    GuideLeaderFollowerFlag = guideString[1]
-    GuidePositionInConvoy = guideString[2:81]
-    GuideEmergencyStop = guideString[82]
-    GuideLocation = guideString[83:112]
-    GuideLineOfBearing = guideString[113:128]
-    GuideVelocityX = guideString[129:160]
-    GuideVelocityY = guideString[161:192]
-    GuideVelocityZ = guideString[193:224]
-    GuideAccelerationX = guideString[225:256]
-    GuideAccelerationY = guideString[257:288]
-    GuideAccelerationZ = guideString[289:320]
-    GuideExtraData = guideString[321:]
-
-    # Separate Local Data
-    LocalAvePtpFlag = localString[0]
-    LocalLeaderFollowerFlag = localString[1]
-    LocalPositionInConvoy = localString[2:81]
-    LocalEmergencyStop = localString[82]
-    LocalLocation = localString[83:112]
-    LocalLineOfBearing = localString[113:128]
-    LocalVelocityX = localString[129:160]
-    LocalVelocityY = localString[161:192]
-    LocalVelocityZ = localString[193:224]
-    LocalAccelerationX = localString[225:256]
-    LocalAccelerationY = localString[257:288]
-    LocalAccelerationZ = localString[289:320]
-    LocalExtraData = localString[321:]
+    # Separate Data
+    AvePtpFlag = dataString[0]
+    LeaderFollowerFlag = dataString[1]
+    PositionInConvoy = dataString[2]
+    EmergencyStop = dataString[3]
+    Latitude = dataString[4]
+    Longitude = dataString[5]
+    LineOfBearing = dataString[6]
+    VelocityX = dataString[7]
+    VelocityY = dataString[8]
+    VelocityZ = dataString[9]
+    AccelerationX = dataString[10]
+    AccelerationY = dataString[11]
+    AccelerationZ = dataString[12]
 
     # Print Data
-    print("GuideAvePtpFlag: " + GuideAvePtpFlag)
-    print("LocalAvePtpFlag: " + LocalAvePtpFlag)
-    print("GuideLeaderFollowerFlag: " + GuideLeaderFollowerFlag)
-    print("LocalLeaderFollowerFlag: " + LocalLeaderFollowerFlag)
-    print("GuidePositionInConvoy: " + GuidePositionInConvoy)
-    print("LocalPositionInConvoy: " + LocalPositionInConvoy)
-    print("GuideEmergencyStop: " + GuideEmergencyStop)
-    print("LocalEmergencyStop: " + LocalEmergencyStop)
-    print("GuideLocation: " + GuideLocation)
-    print("LocalLocation: " + LocalLocation)
-    print("GuideLineOfBearing: " + GuideLineOfBearing)
-    print("LocalLineOfBearing: " + LocalLineOfBearing)
-    print("GuideVelocityX: " + GuideVelocityX)
-    print("LocalVelocityX: " + LocalVelocityX)
-    print("GuideVelocityY: " + GuideVelocityY)
-    print("LocalVelocityY: " + LocalVelocityY)
-    print("GuideVelocityZ: " + GuideVelocityZ)
-    print("LocalVelocityZ: " + LocalVelocityZ)
-    print("GuideAccelerationX: " + GuideAccelerationX)
-    print("LocalAccelerationX: " + LocalAccelerationX)
-    print("GuideAccelerationY: " + GuideAccelerationY)
-    print("LocalAccelerationY: " + LocalAccelerationY)
-    print("GuideAccelerationZ: " + GuideAccelerationZ)
-    print("LocalAccelerationZ: " + LocalAccelerationZ)
-    print("GuideExtraData: " + GuideExtraData)
-    print("LocalExtraData: " + LocalExtraData)
-
+    print("AvePtpFlag: " + AvePtpFlag)
+    print("LeaderFollowerFlag: " + LeaderFollowerFlag)
+    print("PositionInConvoy: " + PositionInConvoy)
+    print("EmergencyStop: " + EmergencyStop)
+    print("Latitude: " + Latitude)
+    print("Longitude: " + Longitude)
+    print("LineOfBearing: " + LineOfBearing)
+    print("VelocityX: " + VelocityX)
+    print("VelocityY: " + VelocityY)
+    print("VelocityZ: " + VelocityZ)
+    print("AccelerationX: " + AccelerationX)
+    print("AccelerationY: " + AccelerationY)
+    print("AccelerationZ: " + AccelerationZ)
 
 ## getAvePtpFlag ######################################
 # Inputs:       string dataString
@@ -107,7 +78,7 @@ def getLeaderFollowerFlag(dataString):
 #               the function that is called.
 #######################################################
 def getPositionInConvoy(dataString):
-	return dataString[2:81]
+	return dataString[2]
 
 ## getEmergencyStop ###################################
 # Inputs:       string dataString
@@ -117,17 +88,27 @@ def getPositionInConvoy(dataString):
 #               the function that is called.
 #######################################################
 def getEmergencyStop(dataString):
-	return dataString[82]
+	return dataString[3]
 
-## getLocation ########################################
+## getLatitude ########################################
 # Inputs:       string dataString
 # Outputs:      Specific location data (size varies)
 # Description:  Parses the binary string given as input
 #               and selects specific data depending on
 #               the function that is called.
 #######################################################
-def getLocation(dataString):
-	return dataString[83:112]
+def getLatitude(dataString):
+	return dataString[4]
+
+## getLongitude #######################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getLongitude(dataString):
+        return dataString[5]
 
 ## getLineOfBearing ###################################
 # Inputs:       string dataString
@@ -137,7 +118,7 @@ def getLocation(dataString):
 #               the function that is called.
 #######################################################
 def getLineOfBearing(dataString):
-	return dataString[113:128]
+	return dataString[6]
 
 ## getVelocityX #######################################
 # Inputs:       string dataString
@@ -147,7 +128,7 @@ def getLineOfBearing(dataString):
 #               the function that is called.
 #######################################################
 def getVelocityX(dataString):
-	return dataString[129:160]
+	return dataString[7]
 
 ## getVelocityY #######################################
 # Inputs:       string dataString
@@ -157,7 +138,7 @@ def getVelocityX(dataString):
 #               the function that is called.
 #######################################################
 def getVelocityY(dataString):
-	return dataString[161:192]
+	return dataString[8]
 
 ## getVelocityZ #######################################
 # Inputs:       string dataString
@@ -167,7 +148,7 @@ def getVelocityY(dataString):
 #               the function that is called.
 #######################################################
 def getVelocityZ(dataString):
-	return dataString[193:224]
+	return dataString[9]
 
 ## getAccelerationX ###################################
 # Inputs:       string dataString
@@ -177,7 +158,7 @@ def getVelocityZ(dataString):
 #               the function that is called.
 #######################################################
 def getAccelerationX(dataString):
-	return dataString[225:256]
+	return dataString[10]
 
 ## getAccelerationY ###################################
 # Inputs:       string dataString
@@ -187,7 +168,7 @@ def getAccelerationX(dataString):
 #               the function that is called.
 #######################################################
 def getAccelerationY(dataString):
-	return dataString[257:288]
+	return dataString[11]
 
 ## getAccelerationZ ###################################
 # Inputs:       string dataString
@@ -197,7 +178,7 @@ def getAccelerationY(dataString):
 #               the function that is called.
 #######################################################
 def getAccelerationZ(dataString):
-	return dataString[289:320]
+	return dataString[12]
 
 ## getExtraData #######################################
 # Inputs:       string dataString
@@ -207,5 +188,5 @@ def getAccelerationZ(dataString):
 #               the function that is called.
 #######################################################
 def getExtraData(dataString):
-	return dataString[321:]
+	return dataString[13]
 

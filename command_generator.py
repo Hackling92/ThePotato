@@ -50,14 +50,24 @@ def comparePositionInConvoy(guidePositionInConvoy, localPositionInConvoy):
 def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
     return 0
 
-## compareLocation ####################################
-# Inputs:       guideLocation, localLocation
+## compareLatitude ####################################
+# Inputs:       guideLatitude, localLatitude
 # Outputs:      N/A
 # Description:  
 #               
 #               
 #######################################################
-def compareLocation(guideLocation, localLocation):
+def compareLatitude(guideLatitude, localLatitude):
+    return 0
+
+## compareLongitude ###################################
+# Inputs:       guideLongitude, localLongitude
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
+def compareLongitude(guideLongitude, localLongitude):
     return 0
 
 ## compareLineOfBearing ################################
