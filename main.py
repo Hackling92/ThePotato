@@ -18,7 +18,7 @@ def compare(guideString,localString):
     # AVEPTPFlag
     compareAvePtpFlag(getAvePtpFlag(guideString), getAvePtpFlag(localString))
     # LeaderFollowerFlag
-    compareLeaderFolloweFlag(getLeaderFollowerFlag(guideString), getLeaderFollowerFlag(localString))
+    compareLeaderFollowerFlag(getLeaderFollowerFlag(guideString), getLeaderFollowerFlag(localString))
     # PositionInConvoy
     comparePositionInConvoy(getPositionInConvoy(guideString), getPositionInConvoy(localString))
     # EmergencyStop
@@ -74,8 +74,8 @@ def main():
         print("SAMPLE: " + str(sample) + " ====================================")
 
         # READ IN CURRENT DATA
-        guideString = guideTxt[0].strip()
-        localString = localTxt[0].strip()
+        guideString = guideTxt[sample-1].strip()
+        localString = localTxt[sample-1].strip()
         guideString = guideString.split(',')
         localString = localString.split(',')
 

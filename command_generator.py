@@ -18,6 +18,16 @@
 #               
 #######################################################
 def compareAvePtpFlag(guideAvePtpFlag, localAvePtpFlag):
+    # Check guideAvePtpFlag
+    if(guideAvePtpFlag == "true"):
+        print("  Following iRobot Unit")
+    else:
+        print("  Following AVE Unit")
+    # Check localAvePtpFlag
+    if(localAvePtpFlag == "true"):
+        print("  I am an iRobot Unit")
+    else:
+        print("  I am an AVE Unit")
     return 0
 
 ## compareLeaderFollowerFlag ##########################
@@ -27,7 +37,17 @@ def compareAvePtpFlag(guideAvePtpFlag, localAvePtpFlag):
 #               
 #               
 #######################################################
-def compareLeaderFolloweFlag(guideLeaderFollowerFlag, localLeaderFollowerFlag):
+def compareLeaderFollowerFlag(guideLeaderFollowerFlag, localLeaderFollowerFlag):
+    # Check guideLeaderFollowerFlag
+    if(guideLeaderFollowerFlag == "true"):
+        print("  Following Convoy Leader")
+    else:
+        print("  Following Secondary Convoy Unit")
+    # Check localLeaderFollowerFlag
+    if(localLeaderFollowerFlag == "true"):
+        print("  I am the Convoy Leader")
+    else:
+        print("  I am a Secondary Convoy Unit")
     return 0
 
 ## comparePositionInConvoy ############################
@@ -38,6 +58,8 @@ def compareLeaderFolloweFlag(guideLeaderFollowerFlag, localLeaderFollowerFlag):
 #               
 #######################################################
 def comparePositionInConvoy(guidePositionInConvoy, localPositionInConvoy):
+    print("  Guide UID: " + guidePositionInConvoy)
+    print("  Local UID: " + localPositionInConvoy)
     return 0
 
 ## compareEmergencyStop ###############################
@@ -48,6 +70,10 @@ def comparePositionInConvoy(guidePositionInConvoy, localPositionInConvoy):
 #               
 #######################################################
 def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
+    if((guideEmergencyStop or localEmergencyStop) == "true"):
+        print("  Emergency Stop Detected")
+    else:
+        print("  System Status OK")
     return 0
 
 ## compareLatitude ####################################
@@ -58,6 +84,10 @@ def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
 #               
 #######################################################
 def compareLatitude(guideLatitude, localLatitude):
+    if(float(guideLatitude) != float(localLatitude)):
+        print("  Different Latitude, Adjust Position")
+    else:
+        print("  Same Latitude")
     return 0
 
 ## compareLongitude ###################################
@@ -68,6 +98,10 @@ def compareLatitude(guideLatitude, localLatitude):
 #               
 #######################################################
 def compareLongitude(guideLongitude, localLongitude):
+    if(float(guideLongitude) != float(localLongitude)):
+        print("  Different Longitude, Adjust Position")
+    else:
+        print("  Same Longitude")
     return 0
 
 ## compareLineOfBearing ################################
@@ -78,6 +112,10 @@ def compareLongitude(guideLongitude, localLongitude):
 #               
 #######################################################
 def compareLineOfBearing(guideLineOfBearing, localLineOfBearing):
+    if(float(guideLineOfBearing) != float(localLineOfBearing)):
+        print("  Different Line of Bearing, Turn Vehicle")
+    else:
+        print("  Same Line of Bearing")
     return 0
 
 ## compareVelocityX ###################################
@@ -88,6 +126,12 @@ def compareLineOfBearing(guideLineOfBearing, localLineOfBearing):
 #               
 #######################################################
 def compareVelocityX(guideVelocityX, localVelocityX):
+    if(float(guideVelocityX) > float(localVelocityX)):
+        print("  Slower VelocityX, Speed Up")
+    elif(float(guideVelocityX) < float(localVelocityX)):
+        print("  Faster VelocityX, Slow Down")
+    else:
+        print("  Same VelocityX, Maintain Speed")
     return 0
 
 ## compareVelocityY ##################################
@@ -98,6 +142,12 @@ def compareVelocityX(guideVelocityX, localVelocityX):
 #               
 #######################################################
 def compareVelocityY(guideVelocityY, localVelocityY):
+    if(float(guideVelocityY) > float(localVelocityY)):
+        print("  Slower VelocityY, Speed Up")
+    elif(float(guideVelocityY) < float(localVelocityY)):
+        print("  Faster VelocityY, Slow Down")
+    else:
+        print("  Same VelocityY, Maintain Speed")
     return 0
 
 ## compareVelocityZ ###################################
@@ -108,6 +158,12 @@ def compareVelocityY(guideVelocityY, localVelocityY):
 #               
 #######################################################
 def compareVelocityZ(guideVelocityZ, localVelocityZ):
+    if(float(guideVelocityZ) > float(localVelocityZ)):
+        print("  Slower VelocityZ, Speed Up")
+    elif(float(guideVelocityZ) < float(localVelocityZ)):
+        print("  Faster VelocityZ, Slow Down")
+    else:
+        print("  Same VelocityZ, Maintain Speed")
     return 0
 
 ## compareAccelerationX ###############################
@@ -118,6 +174,12 @@ def compareVelocityZ(guideVelocityZ, localVelocityZ):
 #               
 #######################################################
 def compareAccelerationX(guideAccelerationX, localAccelerationX):
+    if(float(guideAccelerationX) > float(localAccelerationX)):
+        print("  Slower AccelerationX, Speed Up")
+    elif(float(guideAccelerationX) < float(localAccelerationX)):
+        print("  Faster AccelerationX, Slow Down")
+    else:
+        print("  Same AccelerationX, Maintain Speed")
     return 0
 
 ## compareAccelerationY ###############################
@@ -128,6 +190,12 @@ def compareAccelerationX(guideAccelerationX, localAccelerationX):
 #               
 #######################################################
 def compareAccelerationY(guideAccelerationY, localAccelerationY):
+    if(float(guideAccelerationY) > float(localAccelerationY)):
+        print("  Slower AccelerationY, Speed Up")
+    elif(float(guideAccelerationY) < float(localAccelerationY)):
+        print("  Faster AccelerationY, Slow Down")
+    else:
+        print("  Same AccelerationY, Maintain Speed")
     return 0
 
 ## compareAccelerationZ ###############################
@@ -138,6 +206,12 @@ def compareAccelerationY(guideAccelerationY, localAccelerationY):
 #               
 #######################################################
 def compareAccelerationZ(guideAccelerationZ, localAccelerationZ):
+    if(float(guideAccelerationZ) > float(localAccelerationZ)):
+        print("  Slower AccelerationZ, Speed Up")
+    elif(float(guideAccelerationZ) < float(localAccelerationZ)):
+        print("  Faster AccelerationZ, Slow Down")
+    else:
+        print("  Same AccelerationZ, Maintain Speed")
     return 0
 
 ## compareExtraData ###################################
