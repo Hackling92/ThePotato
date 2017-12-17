@@ -18,20 +18,20 @@ def clientInList(user):
 def sendUDP(ip,port,message):
     s.sendto(message.encode('utf-8'), (ip,port))
 
-# needs to be send lead not tail!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
 def sendHeadToClient():
 
     if(len(clients) == 1):
         headClient = (socket.gethostbyname(socket.gethostname()), 5555)
         sendUDP(clients[0][0], clients[0][1], str(headClient[0]) + ":" + str(headClient[1]))
+        leadCar = ('',)
     for i in range(0,len(clients) - 1):
-        if(i == len(clients)): # last client
-            sendUDP(clients[i + 1][0], clients[i + 1][1], "noTail")
-        else:
-            sendUDP(clients[i + 1][0], clients[i + 1][1], str(clients[i][0]) + ":" + str(clients[i][1]))
+        sendUDP(clients[i + 1][0], clients[i + 1][1], str(clients[i][0]) + ":" + str(clients[i][1]))
 
 
 def main():
+
+    localString = "localString here"
 
     global startPressed
 
@@ -46,13 +46,20 @@ def main():
             message = s.recvfrom(BUFFER_SIZE)
             if(clientInList(message[1])):
                 # check to see if message is start
-                print(message[0])
                 if(str(message[0])[2:-1] == "start"): # a vehicle requested to start run
                     isSetup = True
                     sendHeadToClient()
             else:
                 clients.append(message[1])
             print(clients)
+
+        while(True):
+            #put any processing data here
+
+
+            message = s.recvfrom(BUFFER_SIZE) # get location request
+            if(str(message[0])[2:-1] == "getLocation"):
+                sendUDP(message[1][0],message[1][1], localString)
 
 
     else:
@@ -70,6 +77,12 @@ def main():
                 break
             startPressed = int(input("Start: "))
             # need parallel code here to check if packet start came in
+        while(True):
+            sendUDP(leadCar[0],leadCar[1],"getLocation") # ask for location from lead car
+            message = s.recvfrom(BUFFER_SIZE)
+            guideString = str(message[0])[2:-1]
+
+            # do comparison here
 
 
 
