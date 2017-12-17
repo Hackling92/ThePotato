@@ -51,7 +51,7 @@ def main():
                     sendHeadToClient()
             else:
                 clients.append(message[1])
-            print("Client Added List Is Now: " + clients)
+            print(clients)
 
         while(True):
             #put any processing data here
