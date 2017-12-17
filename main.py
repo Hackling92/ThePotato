@@ -13,6 +13,38 @@
 from packet_parser import *
 from command_generator import *
 
+def compare(guideString,localString):
+    # USE "command_generator.py" AND "packet_parser.py" TO COMPARE DATA
+    # AVEPTPFlag
+    compareAvePtpFlag(getAvePtpFlag(guideString), getAvePtpFlag(localString))
+    # LeaderFollowerFlag
+    compareLeaderFolloweFlag(getLeaderFollowerFlag(guideString), getLeaderFollowerFlag(localString))
+    # PositionInConvoy
+    comparePositionInConvoy(getPositionInConvoy(guideString), getPositionInConvoy(localString))
+    # EmergencyStop
+    compareEmergencyStop(getEmergencyStop(guideString), getEmergencyStop(localString))
+    # Latitude
+    compareLatitude(getLatitude(guideString), getLatitude(localString))
+    # Longitude
+    compareLongitude(getLongitude(guideString), getLongitude(localString))
+    # LineOfBearing
+    compareLineOfBearing(getLineOfBearing(guideString), getLineOfBearing(localString))
+    # VelocityX
+    compareVelocityX(getVelocityX(guideString), getVelocityX(localString))
+    # VelocityY
+    compareVelocityY(getVelocityY(guideString), getVelocityY(localString))
+    # VelocityZ
+    compareVelocityZ(getVelocityZ(guideString), getVelocityZ(localString))
+    # AccelerationX
+    compareAccelerationX(getAccelerationX(guideString), getAccelerationX(localString))
+    # AccelerationY
+    compareAccelerationY(getAccelerationY(guideString), getAccelerationY(localString))
+    # AccelerationZ
+    compareAccelerationZ(getAccelerationZ(guideString), getAccelerationZ(localString))
+    # ExtraData
+    # compareExtraData(getExtraData(guideString), getExtraData(localString))
+
+
 ## main ###############################################
 # Inputs:       N/A
 # Outputs:      N/A
@@ -58,35 +90,7 @@ def main():
         #guideString = get_guide_data(WIFIaddress)
         #guideString = "0110101010101010101010101010101010101010101010101010101010101011010101010101010101010101010101010101010101010101010101010110101101010101010101010101010101010101010101010101101011010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101010101"
 
-        # USE "command_generator.py" AND "packet_parser.py" TO COMPARE DATA
-        # AVEPTPFlag
-        compareAvePtpFlag(getAvePtpFlag(guideString), getAvePtpFlag(localString))
-        # LeaderFollowerFlag
-        compareLeaderFolloweFlag(getLeaderFollowerFlag(guideString), getLeaderFollowerFlag(localString))
-        # PositionInConvoy
-        comparePositionInConvoy(getPositionInConvoy(guideString), getPositionInConvoy(localString))
-        # EmergencyStop
-        compareEmergencyStop(getEmergencyStop(guideString), getEmergencyStop(localString))
-        # Latitude
-        compareLatitude(getLatitude(guideString), getLatitude(localString))
-        # Longitude
-        compareLongitude(getLongitude(guideString), getLongitude(localString))
-        # LineOfBearing
-        compareLineOfBearing(getLineOfBearing(guideString), getLineOfBearing(localString))
-        # VelocityX
-        compareVelocityX(getVelocityX(guideString), getVelocityX(localString))
-        # VelocityY
-        compareVelocityY(getVelocityY(guideString), getVelocityY(localString))
-        # VelocityZ
-        compareVelocityZ(getVelocityZ(guideString), getVelocityZ(localString))
-        # AccelerationX
-        compareAccelerationX(getAccelerationX(guideString), getAccelerationX(localString))
-        # AccelerationY
-        compareAccelerationY(getAccelerationY(guideString), getAccelerationY(localString))
-        # AccelerationZ
-        compareAccelerationZ(getAccelerationZ(guideString), getAccelerationZ(localString))
-        # ExtraData
-        #compareExtraData(getExtraData(guideString), getExtraData(localString))
+        compare(guideString,localString)
 
         # INCREMENT SAMPLE VALUE (TESTING)
         sample += 1
