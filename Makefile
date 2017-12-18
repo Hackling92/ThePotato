@@ -1,4 +1,7 @@
-all:
+run3:
+	python3 main.py
+
+run2:
 	python main.py
 
 clean:
