@@ -20,14 +20,14 @@
 def compareAvePtpFlag(guideAvePtpFlag, localAvePtpFlag):
     # Check guideAvePtpFlag
     if(guideAvePtpFlag == "true"):
-        print("  Following iRobot Unit")
-    else:
         print("  Following AVE Unit")
+    else:
+        print("  Following iRobot Unit")
     # Check localAvePtpFlag
     if(localAvePtpFlag == "true"):
-        print("  I am an iRobot Unit")
-    else:
         print("  I am an AVE Unit")
+    else:
+        print("  I am an iRobot Unit")
     return 0
 
 ## compareLeaderFollowerFlag ##########################
@@ -70,7 +70,7 @@ def comparePositionInConvoy(guidePositionInConvoy, localPositionInConvoy):
 #               
 #######################################################
 def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
-    if((guideEmergencyStop or localEmergencyStop) == "true"):
+    if((guideEmergencyStop == "true") or (localEmergencyStop == "true")):
         print("  Emergency Stop Detected")
     else:
         print("  System Status OK")

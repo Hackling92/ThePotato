@@ -124,11 +124,12 @@ def main():
             # put any processing data here
 
             for line in vehicleTxt:
-                localString = line.strip().split(',')
+                localString = line
 
                 message = s.recvfrom(BUFFER_SIZE)  # get location request
                 if (str(message[0])[2:-1] == "getLocation"):
                     sendUDP(message[1][0], message[1][1], str(localString))
+                    localString = line.strip().split(',')
                     print("\n--------------------------------------------------------------------")
                     print("Sending location data to: " + str(message[1]))
                     print("\tData: " + str(localString))
@@ -161,6 +162,7 @@ def main():
                 sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
                 message = s.recvfrom(BUFFER_SIZE) # message received from guide car
                 guideString = str(message[0])[2:-1] # guideString obtained
+                guideString = guideString.strip("\\n").split(',')
 
                 # calculate the offsets for the data and print them here
                 # drive commands can be formed here aswell
@@ -168,8 +170,9 @@ def main():
                 print("Local PTP Data: " + str(localString))
                 print("Guide PTP Data: " + str(guideString))
                 print("Calculated Offsets:")
-                print("\tBlah blah, blah")
-                print("--------------------------------------------------------------------\n")
+                compare(guideString, localString)
+                print("--------------------------------------------------------------------")
+
 
                 time.sleep(3)   # add artificial delay so test dosnt run to fast to be boring
 
