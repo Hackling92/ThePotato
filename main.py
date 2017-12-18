@@ -10,11 +10,14 @@
 #               to complete the system.
 #######################################################
 
+import os
 import socket
 import time
 from packet_parser import *
 from command_generator import *
 
+if(os.name != "nt"):
+    from subprocess import check_output
 
 # CONSTANTS
 BUFFER_SIZE = 1500
@@ -39,8 +42,13 @@ def sendUDP(ip,port,message):
 
 def sendHeadToClient():
 
+    if(os.name == "nt"):
+        ipAddr = socket.gethostnyname(socket.gethostname())
+    else:
+        ipAddr = str(check_output(["hostname", "-I"]))[2:-1].strip()
+
     if(len(clients) == 1):
-        headClient = (socket.gethostbyname(socket.gethostname()), 5555)
+        headClient = (ipAddr, 5555)
         sendUDP(clients[0][0], clients[0][1], str(headClient[0]) + ":" + str(headClient[1]))
         leadCar = ('',)
     for i in range(0,len(clients) - 1):
