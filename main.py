@@ -181,38 +181,5 @@ def main():
 
 
 
-
-
-
-
-
-
-
-
-
-"""
-    # FILEPATHS FOR READING DATA
-    filepath = 'vehicle' + str(vehicleID) + ".txt"
-    vehicleTxt = open(filepath, 'r')
-
-    # SETUP DATA FOR TESTING
-    vehicleTxt = vehicleTxt.readlines()
-    sample = 1
-
-    # RUN UNTIL SOMETHING STOPS ME
-    #while(1):
-    for line in vehicleTxt:
-
-        # PRINT CURRENT SAMPLE (TESTING)
-        #print("SAMPLE: " + str(sample) + " ====================================")
-        localString = vehicleTxt[sample-1].strip().split(',')
-        #print(localString)
-        #compare(guideString,localString)
-        # INCREMENT SAMPLE VALUE (TESTING)
-        sample += 1
-
-"""
-
-
 main()
 s.close()
