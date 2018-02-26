@@ -56,6 +56,39 @@ startPressed = False
 #p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 
 
+## AVE_RECIEVE_PACKET #################################
+# Inputs:       packetized data in as string
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
+def AVE_RECIEVE_PACKET(packetString):
+    #add code here
+    return 0
+
+## AVE_CALCULATE_PACKET ###############################
+# Inputs:       lead vehicle position data, drone position data
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
+def AVE_CALCULATE(leadVeh, drone):
+    #add code here
+    return 0
+
+## AVE_SEND_PACKET ####################################
+# Inputs:       N/A
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
+def AVE_SEND_PACKET():
+    #add code here
+    return 0
+
 ## clientInList #######################################
 # Inputs:       N/A
 # Outputs:      N/A
@@ -198,36 +231,66 @@ def main():
                 break
             startPressed = str(input("Start run (y,n): "))
             # need parallel code here to check if packet start came in
+            
 
-        # BREAKS ON INTERRUPT
-        try:
-            # BEGIN OPERATION (follower)
-            while (True):
-                for line in vehicleTxt:
-                    localString = line.strip().split(',') # local ptp data from file
-                    sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
-                    message = s.recvfrom(BUFFER_SIZE) # message received from guide car
-                    guideString = str(message[0])[2:-1] # guideString obtained
-                    guideString = guideString.strip("\\n").split(',')
-                    # calculate the offsets for the data and print them here
-                    # drive commands can be formed here as well
-                    print("\n--------------------------------------------------------------------")
-                    print("Local PTP Data: " + str(localString))
-                    print("Guide PTP Data: " + str(guideString))
-                    print("Calculated Offsets:")
-                    compare(guideString, localString)
-                    print("--------------------------------------------------------------------")
+            #####
+            # THIS IS A TEMP INPUT THIS WILL BE REPLACED BY THE FLAG BIT IN THE PACKET
+            # This idealy should be run on each loop iteration
+            #####
 
-                    time.sleep(2)   # add artificial delay so test dosnt run to fast to be boring
+            AVE_FLAG = str(input("AVE Y/N: "))
+            if(AVE_FLAG.lower() == 'y'):
+                AVE_FLAG = 1
+            else:
+                AVE_FLAG = 0
 
-                print("End of sample PTP data reached, process will now exit.")
-                fullStop()
-                break
+            #####
+            # END TEMP CODE
+            #####
 
-        # MOTOR SHUTOFF
-        except Exception as e:
-                fullStop()
-                print(e)
+        # CCP2 CODE
+        # NOTE: this needs to be refactored to use something like recieve calc and send
+        if (not AVE_FLAG):
+                        # BREAKS ON INTERRUPT
+            try:
+                # BEGIN OPERATION (follower)
+                while (True):
+                    for line in vehicleTxt:
+                        localString = line.strip().split(',') # local ptp data from file
+                        sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
+                        message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                        guideString = str(message[0])[2:-1] # guideString obtained
+                        guideString = guideString.strip("\\n").split(',')
+                        # calculate the offsets for the data and print them here
+                        # drive commands can be formed here as well
+                        print("\n--------------------------------------------------------------------")
+                        print("Local PTP Data: " + str(localString))
+                        print("Guide PTP Data: " + str(guideString))
+                        print("Calculated Offsets:")
+                        compare(guideString, localString)
+                        print("--------------------------------------------------------------------")
+
+                        time.sleep(2)   # add artificial delay so test dosnt run to fast to be boring
+
+                    print("End of sample PTP data reached, process will now exit.")
+                    fullStop()
+                    break
+
+            # MOTOR SHUTOFF
+            except Exception as e:
+                    fullStop()
+                    print(e)
+
+
+        
+        # AVE CODE HERE
+        else:
+            """
+            Modify these as you see fit the function definitions are included above
+            """
+            AVE_RECIEVE_PACKET(packetString) # possibly using your bluetooth
+            AVE_CALCULATE(leadVeh, drone) # extra math for z axis if needed
+            AVE_SEND_PACKET() # possibly using your bluetooth
 
 
 main()
