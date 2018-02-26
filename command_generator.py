@@ -10,6 +10,9 @@
 #               iRobot vehicles.
 #######################################################
 
+# INCLUDE
+from ryanmotortest import *
+
 ## compareAvePtpFlag ##################################
 # Inputs:       guideAvePtpFlag, localAvePtpFlag
 # Outputs:      N/A
@@ -72,6 +75,7 @@ def comparePositionInConvoy(guidePositionInConvoy, localPositionInConvoy):
 def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
     if((guideEmergencyStop == "true") or (localEmergencyStop == "true")):
         print("  Emergency Stop Detected")
+        fullStop()        # MOTOR SHUTOFF
     else:
         print("  System Status OK")
     return 0
@@ -86,6 +90,7 @@ def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
 def compareLatitude(guideLatitude, localLatitude):
     if(float(guideLatitude) != float(localLatitude)):
         print("  Different Latitude, Adjust Position")
+        reverse()        # FOR TESTING
     else:
         print("  Same Latitude")
     return 0
@@ -100,6 +105,7 @@ def compareLatitude(guideLatitude, localLatitude):
 def compareLongitude(guideLongitude, localLongitude):
     if(float(guideLongitude) != float(localLongitude)):
         print("  Different Longitude, Adjust Position")
+        forward()        # FOR TESTING
     else:
         print("  Same Longitude")
     return 0

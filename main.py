@@ -10,43 +10,87 @@
 #               to complete the system.
 #######################################################
 
+# IMPORT
 import os
 import socket
 import time
 from packet_parser import *
 from command_generator import *
+# For Vehicle GPIO
+from ryanmotortest import *
+#import RPi.GPIO as GPIO                 # using Rpi.GPIO module
+#from time import sleep                  # import function sleep for delay
+#GPIO.setmode(GPIO.BOARD)                # GPIO numbering
+#GPIO.setwarnings(False)                 # enable warning from GPIO
 
+# OS DEPENDANT NETWORK
 if(os.name != "nt"):
     from subprocess import check_output
 
-# CONSTANTS
-BUFFER_SIZE = 1500
-
 # GLOBALS
+BUFFER_SIZE = 1500
 vehicleID = 0
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-clients = []    # used by leader for setup
+clients = []                            # used by leader for setup
 leadCar = 0
 startPressed = False
+# For Vehicle GPIO
+# driver number 1 is the right
+# driver number 2 is the left
+#AN2 = 16                                # set pwm2 pin on MD10-Hat
+#AN1 = 18                                # set pwm1 pin on MD10-hat
+#DIG2 = 24                               # set dir2 pin on MD10-Hat
+#DIG1 = 26                               # set dir1 pin on MD10-Hat
+# set speed and delay
+#RUNSPEED = 10
+#DELAY = 2
+#TURN = 8
+
+# GPIO SETUP
+#GPIO.setup(AN2, GPIO.OUT)               # set pin as output
+#GPIO.setup(AN1, GPIO.OUT)               # set pin as output
+#GPIO.setup(DIG2, GPIO.OUT)              # set pin as output
+#GPIO.setup(DIG1, GPIO.OUT)              # set pin as output
+#sleep(1)                                # delay for 1 seconds
+#p1 = GPIO.PWM(AN1, 100)                 # set pwm for M1
+#p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 
 
+## clientInList #######################################
+# Inputs:       N/A
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
 def clientInList(user):
     for client in clients:
         if(client == user):
             return client
     return 0
 
+## sendUDP ############################################
+# Inputs:       N/A
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
 def sendUDP(ip,port,message):
     s.sendto(message.encode('utf-8'), (ip,port))
 
-
+## sendHeadToClient ###################################
+# Inputs:       N/A
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
 def sendHeadToClient():
-
     if(os.name == "nt"):
         ipAddr = socket.gethostnyname(socket.gethostname())
     else:
         ipAddr = str(check_output(["hostname", "-I"]))[2:-1].strip()
-
     if(len(clients) == 1):
         headClient = (ipAddr, 5555)
         sendUDP(clients[0][0], clients[0][1], str(headClient[0]) + ":" + str(headClient[1]))
@@ -54,38 +98,29 @@ def sendHeadToClient():
     for i in range(0,len(clients) - 1):
         sendUDP(clients[i + 1][0], clients[i + 1][1], str(clients[i][0]) + ":" + str(clients[i][1]))
 
-
+## compare ############################################
+# Inputs:       N/A
+# Outputs:      N/A
+# Description:  
+#               
+#               
+#######################################################
 def compare(guideString,localString):
     # USE "command_generator.py" AND "packet_parser.py" TO COMPARE DATA
-    # AVEPTPFlag
     compareAvePtpFlag(getAvePtpFlag(guideString), getAvePtpFlag(localString))
-    # LeaderFollowerFlag
     compareLeaderFollowerFlag(getLeaderFollowerFlag(guideString), getLeaderFollowerFlag(localString))
-    # PositionInConvoy
     comparePositionInConvoy(getPositionInConvoy(guideString), getPositionInConvoy(localString))
-    # EmergencyStop
     compareEmergencyStop(getEmergencyStop(guideString), getEmergencyStop(localString))
-    # Latitude
     compareLatitude(getLatitude(guideString), getLatitude(localString))
-    # Longitude
     compareLongitude(getLongitude(guideString), getLongitude(localString))
-    # LineOfBearing
     compareLineOfBearing(getLineOfBearing(guideString), getLineOfBearing(localString))
-    # VelocityX
     compareVelocityX(getVelocityX(guideString), getVelocityX(localString))
-    # VelocityY
     compareVelocityY(getVelocityY(guideString), getVelocityY(localString))
-    # VelocityZ
     compareVelocityZ(getVelocityZ(guideString), getVelocityZ(localString))
-    # AccelerationX
     compareAccelerationX(getAccelerationX(guideString), getAccelerationX(localString))
-    # AccelerationY
     compareAccelerationY(getAccelerationY(guideString), getAccelerationY(localString))
-    # AccelerationZ
     compareAccelerationZ(getAccelerationZ(guideString), getAccelerationZ(localString))
-    # ExtraData
     # compareExtraData(getExtraData(guideString), getExtraData(localString))
-
 
 ## main ###############################################
 # Inputs:       N/A
@@ -96,11 +131,10 @@ def compare(guideString,localString):
 #######################################################
 def main():
 
+    # INITIAL SETUP
     global vehicleID
     global startPressed
-
     localString = "localString here"
-
     vehicleID = int(input("Vehicle ID Number: "))
 
     # FILEPATHS FOR READING DATA
@@ -110,6 +144,7 @@ def main():
     # SETUP DATA FOR TESTING
     vehicleTxt = vehicleTxt.readlines()
 
+    # NETWORK SETUP (leader)
     if (vehicleID == 1):
         print("I am leader for convoy.")
         print("Waiting for vehicles to connect.\n")
@@ -128,12 +163,13 @@ def main():
                 print("Updated client list:")
                 print("\t", clients)
 
+        # BEGIN OPERATION (leader)
         while (True):
             # put any processing data here
-
+            # read sample data
             for line in vehicleTxt:
                 localString = line
-
+                # prepare message to be sent
                 message = s.recvfrom(BUFFER_SIZE)  # get location request
                 if (str(message[0])[2:-1] == "getLocation"):
                     sendUDP(message[1][0], message[1][1], str(localString))
@@ -145,7 +181,7 @@ def main():
             print("End of sample PTP data reached, process will now exit.")
             break
 
-
+    # NETWORK SETUP (follower)
     else:
         print("Follower Number", (vehicleID - 1))
         s.bind(("", 0))
@@ -162,31 +198,36 @@ def main():
                 break
             startPressed = str(input("Start run (y,n): "))
             # need parallel code here to check if packet start came in
-        while (True):
 
-            for line in vehicleTxt:
-                localString = line.strip().split(',') # local ptp data from fil
+        # BREAKS ON INTERRUPT
+        try:
+            # BEGIN OPERATION (follower)
+            while (True):
+                for line in vehicleTxt:
+                    localString = line.strip().split(',') # local ptp data from file
+                    sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
+                    message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                    guideString = str(message[0])[2:-1] # guideString obtained
+                    guideString = guideString.strip("\\n").split(',')
+                    # calculate the offsets for the data and print them here
+                    # drive commands can be formed here as well
+                    print("\n--------------------------------------------------------------------")
+                    print("Local PTP Data: " + str(localString))
+                    print("Guide PTP Data: " + str(guideString))
+                    print("Calculated Offsets:")
+                    compare(guideString, localString)
+                    print("--------------------------------------------------------------------")
 
-                sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
-                message = s.recvfrom(BUFFER_SIZE) # message received from guide car
-                guideString = str(message[0])[2:-1] # guideString obtained
-                guideString = guideString.strip("\\n").split(',')
+                    time.sleep(2)   # add artificial delay so test dosnt run to fast to be boring
 
-                # calculate the offsets for the data and print them here
-                # drive commands can be formed here aswell
-                print("\n--------------------------------------------------------------------")
-                print("Local PTP Data: " + str(localString))
-                print("Guide PTP Data: " + str(guideString))
-                print("Calculated Offsets:")
-                compare(guideString, localString)
-                print("--------------------------------------------------------------------")
+                print("End of sample PTP data reached, process will now exit.")
+                fullStop()
+                break
 
-
-                time.sleep(3)   # add artificial delay so test dosnt run to fast to be boring
-
-            print("End of sample PTP data reached, process will now exit.")
-            break
-
+        # MOTOR SHUTOFF
+        except Exception as e:
+                fullStop()
+                print(e)
 
 
 main()
