@@ -231,7 +231,6 @@ def main():
                 break
             startPressed = str(input("Start run (y,n): "))
             # need parallel code here to check if packet start came in
-            
 
             #####
             # THIS IS A TEMP INPUT THIS WILL BE REPLACED BY THE FLAG BIT IN THE PACKET

@@ -1,3 +1,4 @@
+#SAM WAS HERE#
 #This code was taken from the website: https://www.robotshop.com/en/cytron-13a-5-30v-single-dc-motor-controller.html#description
 #This code was provided for the motorcontrollers used for cytron 13A, 5-30V motor controller
 
@@ -53,12 +54,12 @@ def fullStop():
 #
 #
 #######################################################
-def forward():
+def forward(runspeed):
     print("    Forward")
     GPIO.output(DIG1, GPIO.HIGH)          # set DIG1 as LOW, to control direction
     GPIO.output(DIG2, GPIO.HIGH)          # set DIG2 as LOW, to control direction
-    p1.start(RUNSPEED)                        # set speed for M1 at 100%   
-    p2.start(RUNSPEED)
+    p1.start(runspeed)                        # set speed for M1 at 100%   
+    p2.start(runspeed)
     #sleep(DELAY)                             #delay for 2 second
     return 0
 
@@ -69,12 +70,12 @@ def forward():
 #
 #
 #######################################################
-def forwardLeft():
+def forwardLeft(runspeed):
     print("    Forward-Left")
     GPIO.output(DIG1, GPIO.HIGH)          # set DIG1 as LOW, to control direction
     GPIO.output(DIG2, GPIO.HIGH)          # set DIG2 as LOW, to control direction
-    p1.start(RUNSPEED)                        # set speed for M1 at 100%   
-    p2.start(RUNSPEED - TURN)
+    p1.start(runspeed)                        # set speed for M1 at 100%   
+    p2.start(runspeed - TURN)
     #sleep(DELAY)                             #delay for 2 second
     return 0
 
@@ -85,12 +86,12 @@ def forwardLeft():
 #
 #
 #######################################################
-def forwardRight():
+def forwardRight(runspeed):
     print("    Forward-Right")
     GPIO.output(DIG1, GPIO.HIGH)          # set DIG1 as LOW, to control direction
     GPIO.output(DIG2, GPIO.HIGH)          # set DIG2 as LOW, to control direction
-    p1.start(RUNSPEED - TURN)                        # set speed for M1 at 100%   
-    p2.start(RUNSPEED)
+    p1.start(runspeed - TURN)                        # set speed for M1 at 100%   
+    p2.start(runspeed)
     #sleep(DELAY)                             #delay for 2 second
     return 0
 
@@ -101,12 +102,12 @@ def forwardRight():
 #
 #
 #######################################################
-def reverse():
+def reverse(runspeed):
     print("    Reverse")
     GPIO.output(DIG1, GPIO.LOW)         # set DIG1 as HIGH, to control direction
     GPIO.output(DIG2, GPIO.LOW)         # set DIG2 as HIGH, to control direction
-    p1.start(RUNSPEED)                        # set speed for M1 at 100%
-    p2.start(RUNSPEED)                        # set speed for M2 at 100%
+    p1.start(runspeed)                        # set speed for M1 at 100%
+    p2.start(runspeed)                        # set speed for M2 at 100%
     #sleep(DELAY)                             #delay for 2 second
     return 0
 
@@ -117,12 +118,12 @@ def reverse():
 #
 #
 #######################################################
-def reverseLeft():
+def reverseLeft(runspeed):
     print("    Reverse-Left")
     GPIO.output(DIG1, GPIO.LOW)         # set DIG1 as HIGH, to control direction
     GPIO.output(DIG2, GPIO.LOW)         # set DIG2 as HIGH, to control direction
-    p1.start(RUNSPEED - TURN)                        # set speed for M1 at 100%
-    p2.start(RUNSPEED)                        # set speed for M2 at 100%
+    p1.start(runspeed - TURN)                        # set speed for M1 at 100%
+    p2.start(runspeed)                        # set speed for M2 at 100%
     #sleep(DELAY)                             #delay for 2 second
     return 0
 
@@ -133,11 +134,11 @@ def reverseLeft():
 #
 #
 #######################################################
-def reverseRight():
+def reverseRight(runspeed):
     print("    Reverse-Right")
     GPIO.output(DIG1, GPIO.LOW)         # set DIG1 as HIGH, to control direction
     GPIO.output(DIG2, GPIO.LOW)         # set DIG2 as HIGH, to control direction
-    p1.start(RUNSPEED)                        # set speed for M1 at 100%
-    p2.start(RUNSPEED - TURN)                        # set speed for M2 at 100%
+    p1.start(runspeed)                        # set speed for M1 at 100%
+    p2.start(runspeed - TURN)                        # set speed for M2 at 100%
     #sleep(DELAY)                             #delay for 2 second
     return 0
