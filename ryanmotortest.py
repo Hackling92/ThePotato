@@ -19,6 +19,7 @@ DIG1 = 26                               # set dir1 pin on MD10-Hat
 RUNSPEED = 10
 DELAY = 2
 TURN = 8
+TRACK_DISTANCE = 5
 
 GPIO.setup(AN2, GPIO.OUT)               # set pin as output
 GPIO.setup(AN1, GPIO.OUT)               # set pin as output
@@ -30,6 +31,44 @@ p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 
 
 # steer by setting one motor to zero and the other to the 50ish
+
+## skidSteer ##########################################
+# Inputs:       N/A
+# Outputs:      N/A
+# Description:  
+#
+#
+#######################################################
+def skidSteer(dir, radius, speed, bearing):
+    if(dir.lower() == "f"):
+        #forward
+        GPIO.output(DIG1, GPIO.HIGH)
+        GPIO.output(DIG2, GPIO.HIGH)
+
+        speedOuter = speed * ((radius+TRACK_DISTANCE)/radius)
+
+        if(int(bearing) >= 0):
+            # right or straight
+            p1.start(speed) # right side
+            p2.start(speedOuter) # left  side
+
+        else:
+            # left
+            p1.start(speedOuter) # right side
+            p2.start(speed) # left  side
+    else:
+        #backward
+        GPIO.output(DIG1, GPIO.LOW)
+        GPIO.output(DIG2, GPIO.LOW)
+
+        if(int(bearing) >= 0): # this one may be backwards
+            # right or straight
+            p1.start(speedOuter) # right side
+            p2.start(speed) # left  side
+        else:
+            # left
+            p1.start(speed) # right side
+            p2.start(speedOuter) # left  side
 
 ## fullStop ########################################### 
 # Inputs:       N/A
@@ -142,3 +181,4 @@ def reverseRight(runspeed):
     p2.start(runspeed - TURN)                        # set speed for M2 at 100%
     #sleep(DELAY)                             #delay for 2 second
     return 0
+

@@ -34,26 +34,10 @@ s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 clients = []                            # used by leader for setup
 leadCar = 0
 startPressed = False
-# For Vehicle GPIO
-# driver number 1 is the right
-# driver number 2 is the left
-#AN2 = 16                                # set pwm2 pin on MD10-Hat
-#AN1 = 18                                # set pwm1 pin on MD10-hat
-#DIG2 = 24                               # set dir2 pin on MD10-Hat
-#DIG1 = 26                               # set dir1 pin on MD10-Hat
 # set speed and delay
 #RUNSPEED = 10
 #DELAY = 2
 #TURN = 8
-
-# GPIO SETUP
-#GPIO.setup(AN2, GPIO.OUT)               # set pin as output
-#GPIO.setup(AN1, GPIO.OUT)               # set pin as output
-#GPIO.setup(DIG2, GPIO.OUT)              # set pin as output
-#GPIO.setup(DIG1, GPIO.OUT)              # set pin as output
-#sleep(1)                                # delay for 1 seconds
-#p1 = GPIO.PWM(AN1, 100)                 # set pwm for M1
-#p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 
 
 ## AVE_RECIEVE_PACKET #################################
@@ -269,7 +253,7 @@ def main():
                         compare(guideString, localString)
                         print("--------------------------------------------------------------------")
 
-                        time.sleep(2)   # add artificial delay so test dosnt run to fast to be boring
+                        time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
 
                     print("End of sample PTP data reached, process will now exit.")
                     fullStop()

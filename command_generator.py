@@ -13,6 +13,20 @@
 # INCLUDE
 from ryanmotortest import *
 
+## calculateSkid ######################################
+# Inputs:       
+# Outputs:      N/A
+# Description:  
+#
+#
+#######################################################
+def calculateSkid():
+    dir = "F"
+    radius = 4
+    speed = 20
+    bearing = 20
+    skidSteer(dir, radius, speed, bearing)
+
 ## compareAvePtpFlag ##################################
 # Inputs:       guideAvePtpFlag, localAvePtpFlag
 # Outputs:      N/A
@@ -90,8 +104,8 @@ def compareEmergencyStop(guideEmergencyStop, localEmergencyStop):
 def compareLatitude(guideLatitude, localLatitude):
     if(float(guideLatitude) != float(localLatitude)):
         print("  Different Latitude, Adjust Position")
-        runspeed = 10
-        reverse(runspeed)        # FOR TESTING
+        #runspeed = 10
+        #reverse(runspeed)        # FOR TESTING
     else:
         print("  Same Latitude")
     return 0
@@ -106,8 +120,8 @@ def compareLatitude(guideLatitude, localLatitude):
 def compareLongitude(guideLongitude, localLongitude):
     if(float(guideLongitude) != float(localLongitude)):
         print("  Different Longitude, Adjust Position")
-        runspeed = 10
-        forward(runspeed)        # FOR TESTING
+        #runspeed = 10
+        #forward(runspeed)        # FOR TESTING
     else:
         print("  Same Longitude")
     return 0
