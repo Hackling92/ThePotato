@@ -10,17 +10,14 @@
 #               to complete the system.
 #######################################################
 
-<<<<<<< HEAD
 # IMPORT
 import os
-=======
+
 ### CCP ###
->>>>>>> 5bd7a394b786ad1ff61b9661662e96453c461f52
 import socket
 import time
 from packet_parser import *
 from command_generator import *
-<<<<<<< HEAD
 # For Vehicle GPIO
 from ryanmotortest import *
 #import RPi.GPIO as GPIO                 # using Rpi.GPIO module
@@ -31,16 +28,12 @@ from ryanmotortest import *
 # OS DEPENDANT NETWORK
 if(os.name != "nt"):
     from subprocess import check_output
-=======
+
 ### Bluetooth ###
 import os
 import bluetooth
 import RPi.GPIO as GPIO
 from bluetooth import *
-
-# CONSTANTS
-BUFFER_SIZE = 1500
->>>>>>> 5bd7a394b786ad1ff61b9661662e96453c461f52
 
 # GLOBALS
 BUFFER_SIZE = 1500
@@ -111,7 +104,6 @@ def clientInList(user):
 def sendUDP(ip,port,message):
     s.sendto(message.encode('utf-8'), (ip,port))
 
-<<<<<<< HEAD
 ## sendHeadToClient ###################################
 # Inputs:       N/A
 # Outputs:      N/A
@@ -124,9 +116,6 @@ def sendHeadToClient():
         ipAddr = socket.gethostnyname(socket.gethostname())
     else:
         ipAddr = str(check_output(["hostname", "-I"]))[2:-1].strip()
-=======
-def sendHeadToClient():
->>>>>>> 5bd7a394b786ad1ff61b9661662e96453c461f52
     if(len(clients) == 1):
         headClient = (ipAddr, 5555)
         sendUDP(clients[0][0], clients[0][1], str(headClient[0]) + ":" + str(headClient[1]))
@@ -134,7 +123,6 @@ def sendHeadToClient():
     for i in range(0,len(clients) - 1):
         sendUDP(clients[i + 1][0], clients[i + 1][1], str(clients[i][0]) + ":" + str(clients[i][1]))
 
-<<<<<<< HEAD
 ## compare ############################################
 # Inputs:       N/A
 # Outputs:      N/A
@@ -142,8 +130,6 @@ def sendHeadToClient():
 #               
 #               
 #######################################################
-=======
->>>>>>> 5bd7a394b786ad1ff61b9661662e96453c461f52
 def compare(guideString,localString):
     # USE "command_generator.py" AND "packet_parser.py" TO COMPARE DATA
     compareAvePtpFlag(getAvePtpFlag(guideString), getAvePtpFlag(localString))
@@ -202,9 +188,7 @@ def main():
                 print("Updated client list:")
                 print("\t", clients)
 
-<<<<<<< HEAD
         # BEGIN OPERATION (leader)
-=======
         ### Bluetooth ###
         connection = False
         server_sock=BluetoothSocket( RFCOMM )
@@ -218,12 +202,9 @@ def main():
         advertise_service( server_sock, "AVECCPDataServer",
                 service_id = uuid,
                 service_classes = [ uuid, SERIAL_PORT_CLASS ],
-                profiles = [ SERIAL_PORT_PROFILE ]
-						 )
+                profiles = [ SERIAL_PORT_PROFILE ]						 )
 
->>>>>>> 5bd7a394b786ad1ff61b9661662e96453c461f52
         while (True):
-
             ### Bluetooth ###
             if(connection == False):
                 print("Waiting for connection on RFCOMM channel %d" % port)
@@ -270,18 +251,11 @@ def main():
                 break
 
             # put any processing data here
-<<<<<<< HEAD
             # read sample data
-            for line in vehicleTxt:
-                localString = line
-                # prepare message to be sent
-=======
-                
-
             # Send data over WiFi
             for line in vehicleTxt:
                 localString = line
->>>>>>> 5bd7a394b786ad1ff61b9661662e96453c461f52
+                # prepare message to be sent
                 message = s.recvfrom(BUFFER_SIZE)  # get location request
                 if (str(message[0])[2:-1] == "getLocation"):
                     sendUDP(message[1][0], message[1][1], str(localString))
@@ -360,12 +334,9 @@ def main():
                     print(e)
 
 
-        
         # AVE CODE HERE
         else:
-            """
-            Modify these as you see fit the function definitions are included above
-            """
+            # Modify these as you see fit the function definitions are included above
             AVE_RECIEVE_PACKET(packetString) # possibly using your bluetooth
             AVE_CALCULATE(leadVeh, drone) # extra math for z axis if needed
             AVE_SEND_PACKET() # possibly using your bluetooth
