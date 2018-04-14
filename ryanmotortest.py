@@ -1,7 +1,12 @@
-#SAM WAS HERE#
-#This code was taken from the website: https://www.robotshop.com/en/cytron-13a-5-30v-single-dc-motor-controller.html#description
-#This code was provided for the motorcontrollers used for cytron 13A, 5-30V motor controller
+# PREVIOUS VERSIONS #
+# This code was taken from the website: https://www.robotshop.com/en/cytron-13a-5-30v-single-dc-motor-controller.html#description
+# This code was provided for the motorcontrollers used for cytron 13A, 5-30V motor controller
 
+# CURRENT VERSION #
+# This code was modified from the code used by the iRobot team of Fall 2017
+# The primary modifications done by the CCP2 team was to implement the following...
+#  - Skid Steer Command
+#  - Various other control functions used for testing
 
 #import pygame
 import RPi.GPIO as GPIO                 # using Rpi.GPIO module
@@ -40,8 +45,8 @@ p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 #
 #######################################################
 def skidSteer(dir, radius, speed, bearing):
-    if(dir.lower() == "f"):
-        #forward
+    if(dir.lower() == "forward"):
+        # forward
         GPIO.output(DIG1, GPIO.HIGH)
         GPIO.output(DIG2, GPIO.HIGH)
 
@@ -57,7 +62,7 @@ def skidSteer(dir, radius, speed, bearing):
             p1.start(speedOuter) # right side
             p2.start(speed) # left  side
     else:
-        #backward
+        # backward
         GPIO.output(DIG1, GPIO.LOW)
         GPIO.output(DIG2, GPIO.LOW)
 

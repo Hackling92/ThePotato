@@ -319,6 +319,7 @@ def main():
                         print("Local PTP Data: " + str(localString))
                         print("Guide PTP Data: " + str(guideString))
                         print("Calculated Offsets:")
+                        #calculateSkid(guideString, localString)
                         compare(guideString, localString)
                         print("--------------------------------------------------------------------")
 

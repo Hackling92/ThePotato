@@ -12,20 +12,79 @@
 
 # INCLUDE
 from ryanmotortest import *
+from packet_parser import *
+
+#######################################################
+## CALCULATION FUNCTIONS
+#######################################################
+
+## calculateDir #######################################
+# Inputs:       guideString, localString
+# Outputs:      "Forward" or "Reverse"
+# Description:  This function determines what direction
+#               the vehicle should proceed. Determined
+#               by listed inputs.
+#######################################################
+def calculateDir(guideString, localString):
+    dir = "Forward"
+    return dir
+
+## calculateRadius ####################################
+# Inputs:       guideString, localString
+# Outputs:      Radius in meters
+# Description:  This function determines what radius
+#               the vehicle will turn around. This is
+#               Determined by listed inputs.
+#######################################################
+def calculateRadius(guideString, localString):
+    radius = 4
+    return radius
+
+## calculateSpeed #####################################
+# Inputs:       guideString, localString
+# Outputs:      Speed factor (0-100)
+# Description:  This function determines the speed
+#               the vehicle should drive at. Determined
+#               by listed inputs.
+#######################################################
+def calculateSpeed(guideString, localString):
+    speed = 20
+    return speed
+
+## calculateBearing ###################################
+# Inputs:       guideString, localString
+# Outputs:      Bearing as angle in degrees (0-360)
+# Description:  This function determines what direction
+#               the vehicle is facing. Determined
+#               by listed inputs.
+#######################################################
+def calculateBearing(guideString, localString):
+    bearing = 20
+    return bearing
 
 ## calculateSkid ######################################
-# Inputs:       
-# Outputs:      N/A
-# Description:  
-#
-#
+# Inputs:       guideString, localString
+# Outputs:      None, executes skidSteer command
+# Description:  This function will use the location
+#               data to generate the values needed
+#               to perform vehicle movements.
 #######################################################
-def calculateSkid():
-    dir = "F"
-    radius = 4
-    speed = 20
-    bearing = 20
+def calculateSkid(guideString, localString):
+
+    # Do Calculations
+    dir = calculateDir(guideString, localString)
+    radius = calculateRadius(guideString, localString)
+    speed = calculateSpeed(guideString, localString)
+    bearing = calculateBearing(guideString, localString)
+    # Execute Skid Steer
     skidSteer(dir, radius, speed, bearing)
+
+
+
+
+#######################################################
+## COMPARE FUNCTIONS
+#######################################################
 
 ## compareAvePtpFlag ##################################
 # Inputs:       guideAvePtpFlag, localAvePtpFlag
