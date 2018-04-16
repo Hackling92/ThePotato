@@ -19,7 +19,7 @@ import time
 from packet_parser import *
 from command_generator import *
 # For Vehicle GPIO
-from ryanmotortest import *
+from motor_control import *
 #import RPi.GPIO as GPIO                 # using Rpi.GPIO module
 #from time import sleep                  # import function sleep for delay
 #GPIO.setmode(GPIO.BOARD)                # GPIO numbering
@@ -306,6 +306,7 @@ def main():
                         # BREAKS ON INTERRUPT
             try:
                 # BEGIN OPERATION (follower)
+                speed = 0 # initial speed
                 while (True):
                     for line in vehicleTxt:
                         localString = line.strip().split(',') # local ptp data from file
@@ -319,7 +320,7 @@ def main():
                         print("Local PTP Data: " + str(localString))
                         print("Guide PTP Data: " + str(guideString))
                         print("Calculated Offsets:")
-                        #calculateSkid(guideString, localString)
+                        #speed = calculateSkid(guideString, localString, speed)
                         compare(guideString, localString)
                         print("--------------------------------------------------------------------")
 

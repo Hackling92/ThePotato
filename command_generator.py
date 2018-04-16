@@ -11,7 +11,8 @@
 #######################################################
 
 # INCLUDE
-from ryanmotortest import *
+import math
+from motor_control import *
 from packet_parser import *
 
 #######################################################
@@ -26,7 +27,15 @@ from packet_parser import *
 #               by listed inputs.
 #######################################################
 def calculateDir(guideString, localString):
-    dir = "Forward"
+    # If local velocity == 0 and distance is decreasing
+    # then reverse
+    if (getVelocityX(localString) >= 0) and (getVelocityX(guideString) <= 0):
+        dir = "Reverse"
+    elif (getVelocityX(localString) <= 0) and (getVelocityX(guideString) >= 0):
+        dir = "Reverse"
+    # else, Forward
+    else:
+        dir = "Forward"
     return dir
 
 ## calculateRadius ####################################
@@ -37,7 +46,22 @@ def calculateDir(guideString, localString):
 #               Determined by listed inputs.
 #######################################################
 def calculateRadius(guideString, localString):
-    radius = 4
+    # HOW-TO
+    # - use calculated distance.
+    #   - distance = sqrt(deltaLat**2 + deltaLong**2)
+    # - angle (theta) is angle between localBearing and
+    #   vector to the guide vehicle.
+    #   - theta = vectorAngle - localBearing
+    #   - vectorAngle = tan-1(long/lat) !! USE THIS TO CALCULATE BEARING
+    # - then radius = distance * cos(90 - theta).
+    deltaLong = getLongitude(guideString) - getLongitude(localString)
+    deltaLat = getLatitude(guideString) - getLatitude(localString)
+    distance = math.sqrt(deltaLong**2 + deltaLat**2)
+    bearing = getLineOfBearing(localString)
+    vectorAngle = math.atan2(deltaLong, deltaLat)
+    theta = vectorAngle - localBearing
+    radius = distance * math.cos(((math.pi)/2) - theta)
+    #radius = 4
     return radius
 
 ## calculateSpeed #####################################
@@ -47,19 +71,38 @@ def calculateRadius(guideString, localString):
 #               the vehicle should drive at. Determined
 #               by listed inputs.
 #######################################################
-def calculateSpeed(guideString, localString):
-    speed = 20
-    return speed
+def calculateSpeed(guideString, localString, currentSpeed):
+    # Velocity difference between vehicles
+    guideSquareX = getVelocityX(guideString)**2
+    guideSquareY = getVelocityY(guideString)**2
+    localSquareX = getVelocityX(localString)**2
+    localSquareY = getVelocityY(localString)**2
+    guideVelocity = math.sqrt(guideSquareX + guideSquareY)
+    localVelocity = math.sqrt(localSquareX + localSquareY)
+    # Same velocities
+    if (guideVelocity == localVelocity):
+        newSpeed = currentSpeed
+    # Guide faster than local
+    elif (guideVelocity > localVelocity):
+        newSpeed = currentSpeed + 5
+    # Local faster than guide
+    elif (guideVelocity < localVelocity):
+        newSpeed = currentSpeed - 5
+    return newSpeed
 
 ## calculateBearing ###################################
 # Inputs:       guideString, localString
 # Outputs:      Bearing as angle in degrees (0-360)
 # Description:  This function determines what direction
-#               the vehicle is facing. Determined
-#               by listed inputs.
+#               the guide vehicle is in relation to the
+#               local vehicle.
 #######################################################
 def calculateBearing(guideString, localString):
-    bearing = 20
+    # see CalculateRadius
+    deltaLong = getLongitude(guideString) - getLongitude(localString)
+    deltaLat = getLatitude(guideString) - getLatitude(localString)
+    bearing = math.atan2(deltaLong, deltaLat)
+    #bearing = 20
     return bearing
 
 ## calculateSkid ######################################
@@ -69,15 +112,23 @@ def calculateBearing(guideString, localString):
 #               data to generate the values needed
 #               to perform vehicle movements.
 #######################################################
-def calculateSkid(guideString, localString):
-
-    # Do Calculations
+def calculateSkid(guideString, localString, speed):
+    # Do calculations
     dir = calculateDir(guideString, localString)
     radius = calculateRadius(guideString, localString)
-    speed = calculateSpeed(guideString, localString)
+    newSpeed = calculateSpeed(guideString, localString, speed)
     bearing = calculateBearing(guideString, localString)
-    # Execute Skid Steer
-    skidSteer(dir, radius, speed, bearing)
+    # Execute skid steer
+    #skidSteer(dir, radius, newSpeed, bearing)
+    # Return speed for future calculations
+    print("----------------------")
+    print ("VALUES FOR SKIDSTEER:")
+    print ("dir =      ", dir)
+    print ("radius =   ", radius)
+    print ("newSpeed = ", newSpeed)
+    print ("bearing =  ", bearing)
+    print ("---------------------")
+    return newSpeed
 
 
 

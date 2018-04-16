@@ -98,7 +98,7 @@ def getEmergencyStop(dataString):
 #               the function that is called.
 #######################################################
 def getLatitude(dataString):
-	return dataString[4]
+	return float(dataString[4])
 
 ## getLongitude #######################################
 # Inputs:       string dataString
@@ -108,7 +108,7 @@ def getLatitude(dataString):
 #               the function that is called.
 #######################################################
 def getLongitude(dataString):
-        return dataString[5]
+        return float(dataString[5])
 
 ## getLineOfBearing ###################################
 # Inputs:       string dataString
@@ -118,7 +118,7 @@ def getLongitude(dataString):
 #               the function that is called.
 #######################################################
 def getLineOfBearing(dataString):
-	return dataString[6]
+	return int(dataString[6])
 
 ## getVelocityX #######################################
 # Inputs:       string dataString
@@ -128,7 +128,7 @@ def getLineOfBearing(dataString):
 #               the function that is called.
 #######################################################
 def getVelocityX(dataString):
-	return dataString[7]
+	return float(dataString[7])
 
 ## getVelocityY #######################################
 # Inputs:       string dataString
@@ -138,7 +138,7 @@ def getVelocityX(dataString):
 #               the function that is called.
 #######################################################
 def getVelocityY(dataString):
-	return dataString[8]
+	return float(dataString[8])
 
 ## getVelocityZ #######################################
 # Inputs:       string dataString
@@ -148,7 +148,7 @@ def getVelocityY(dataString):
 #               the function that is called.
 #######################################################
 def getVelocityZ(dataString):
-	return dataString[9]
+	return float(dataString[9])
 
 ## getAccelerationX ###################################
 # Inputs:       string dataString
