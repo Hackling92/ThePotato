@@ -95,6 +95,7 @@ def RightDown(channel):
 
 def main():
 
+	GPIO.setwarnings(False)
 	GPIO.setmode(GPIO.BOARD) # set gpio pin numbers to board numbers
 	GPIO.setup(outputPins, GPIO.OUT) # set all led pins as outputs
 	GPIO.setup(inputPins, GPIO.IN, pull_up_down = GPIO.PUD_UP) # set all buttons as inputs with pullup resistors
@@ -120,9 +121,12 @@ def main():
 	GPIO.add_event_detect(buttons[4], GPIO.FALLING, callback=RightDown, bouncetime=100)
 
 
-	# this is where the real vehicle program goes
-	while True:
-		time.sleep(0.001)
+	try:
+		# this is where the real vehicle program goes
+		while True:
+			time.sleep(0.001)
 
+	finally:
+		GPIO.cleanup()
 
 main()
