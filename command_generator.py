@@ -15,6 +15,10 @@ import math
 from motor_control import *
 from packet_parser import *
 
+# CONSTANTS
+longToMet = 86271
+latToMet = 111021
+
 #######################################################
 ## CALCULATION FUNCTIONS
 #######################################################
@@ -54,8 +58,8 @@ def calculateRadius(guideString, localString):
     #   - theta = vectorAngle - localBearing
     #   - vectorAngle = tan-1(long/lat) !! USE THIS TO CALCULATE BEARING
     # - then radius = distance * cos(90 - theta).
-    deltaLong = getLongitude(guideString) - getLongitude(localString)
-    deltaLat = getLatitude(guideString) - getLatitude(localString)
+    deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
+    deltaLat = (getLatitude(guideString) - getLatitude(localString)) * latToMet
     distance = math.sqrt(deltaLong**2 + deltaLat**2)
     bearing = getLineOfBearing(localString)
     vectorAngle = math.atan2(deltaLong, deltaLat)
@@ -101,7 +105,7 @@ def calculateBearing(guideString, localString):
     # see CalculateRadius
     deltaLong = getLongitude(guideString) - getLongitude(localString)
     deltaLat = getLatitude(guideString) - getLatitude(localString)
-    bearing = math.atan2(deltaLong, deltaLat)
+    bearing = math.atan2((deltaLong*longToMet), (deltaLat*latToMet))
     #bearing = 20
     return bearing
 
