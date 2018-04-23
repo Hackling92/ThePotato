@@ -320,7 +320,7 @@ def main():
                         print("Local PTP Data: " + str(localString))
                         print("Guide PTP Data: " + str(guideString))
                         print("Calculated Offsets:")
-                        #speed = calculateSkid(guideString, localString, speed)
+                        speed = calculateSkid(guideString, localString, speed)
                         compare(guideString, localString)
                         print("--------------------------------------------------------------------")
 

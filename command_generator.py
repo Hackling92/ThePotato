@@ -63,7 +63,7 @@ def calculateRadius(guideString, localString):
     distance = math.sqrt(deltaLong**2 + deltaLat**2)
     bearing = getLineOfBearing(localString)
     vectorAngle = math.atan2(deltaLong, deltaLat)
-    theta = vectorAngle - localBearing
+    theta = vectorAngle - getLineOfBearing(localString)
     radius = distance * math.cos(((math.pi)/2) - theta)
     #radius = 4
     return radius
