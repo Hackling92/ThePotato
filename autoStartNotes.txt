@@ -1,0 +1,2 @@
+python3 /home/pi/ThePotato/control_panel_test.py &
+
