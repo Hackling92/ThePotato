@@ -91,7 +91,14 @@ def calculateSpeed(guideString, localString, currentSpeed):
         newSpeed = currentSpeed + 5
     # Local faster than guide
     elif (guideVelocity < localVelocity):
-        newSpeed = currentSpeed - 5
+        deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
+        deltaLat = (getLatitude(guideString) - getLatitude(localString)) * latToMet
+        distance = math.sqrt(deltaLong**2 + deltaLat**2)
+        print("DISTANCE = ", distance)
+        if ((distance < 2) and (currentSpeed >= 5)):
+            newSpeed = currentSpeed - 5
+        else:
+            newSpeed = currentSpeed
     return newSpeed
 
 ## calculateBearing ###################################
