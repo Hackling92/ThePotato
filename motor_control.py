@@ -11,7 +11,7 @@
 #import pygame
 import RPi.GPIO as GPIO                 # using Rpi.GPIO module
 from time import sleep                  # import function sleep for delay
-GPIO.setmode(GPIO.BOARD)                  # GPIO numbering
+GPIO.setmode(GPIO.BOARD)                # GPIO numbering
 GPIO.setwarnings(False)                 # enable warning from GPIO
 
 # driver number 1 is the right
