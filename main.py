@@ -31,9 +31,9 @@ if(os.name != "nt"):
 
 ### Bluetooth ###
 import os
-#import bluetooth
+import bluetooth
 #import RPi.GPIO as GPIO
-#from bluetooth import *
+from bluetooth import *
 
 ### GLOBALS ###
 # network
@@ -298,11 +298,6 @@ def main():
 
         # BEGIN OPERATION (leader)
         ### Bluetooth ###
-        #connection = False
-        #server_sock=BluetoothSocket( RFCOMM )
-        #server_sock.bind(("",PORT_ANY))
-        #server_sock.listen(1)
-        # Declare Port
         #port = server_sock.getsockname()[1]
         # Unique UUID to connect with AVE Android Phone
         #uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
@@ -314,7 +309,6 @@ def main():
 
         while (operate):
             ### Bluetooth ###
-            #if(connection == False):
                 #print("Waiting for connection on RFCOMM channel %d" % port)
                 #client_sock, client_info = server_sock.accept()
                 #connection = True
@@ -377,6 +371,30 @@ def main():
 
     # NETWORK SETUP (follower)
     else:
+        ### Bluetooth ###
+        AveFlag = str(input("AVE Unit? (y,n): "))
+        if (AveFlag == "y"):
+            AveFlag = True
+            BTconnection = False
+            while (BTconnection == False):
+                server_sock=BluetoothSocket( RFCOMM )
+                server_sock.bind(("",PORT_ANY))
+                server_sock.listen(1)
+                port = server_sock.getsockname()[1]
+
+                #unique UUID to connect with AVE Android Phone
+                uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
+
+                file = open("vehicle3.txt", "r")
+
+                advertise_service(server_sock, "AVECCPDataServer",
+                                  service_id = uuid,
+                                  service_classes = [ uuid, SERIAL_PORT_CLASS ],
+                                  profiles = [ SERIAL_PORT_PROFILE ])
+        else:
+            AveFlag = False
+
+        ### WiFi ###
         print("Follower Number", (vehicleID - 1))
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
@@ -399,12 +417,6 @@ def main():
             # This idealy should be run on each loop iteration
             #####
 
-            #AVE_FLAG = str(input("AVE Y/N: "))
-            #if(AVE_FLAG.lower() == 'y'):
-            #    AVE_FLAG = 1
-            #else:
-            #    AVE_FLAG = 0
-
             #####
             # END TEMP CODE
             #####
@@ -412,46 +424,68 @@ def main():
         # CCP2 CODE
         # NOTE: this needs to be refactored to use something like recieve calc and send
         while (operate):
-        #if (not AVE_FLAG):
-                        # BREAKS ON INTERRUPT
+            if (AveFlag):
+                if(BTconnection == False):
+                    print("Waiting for connection on RFCOMM channel %d" % port)
+                    client_sock, client_info = server_sock.accept()
+                    BTconnection = True
+                    print("Accepted connection from ", client_info)
+
+            # BREAKS ON INTERRUPT
             try:
                 # BEGIN OPERATION (follower)
                 speed = 0 # initial speed
                 while (True):
-                    for line in vehicleTxt:
-                        localString = line.strip().split(',') # local ptp data from file
-                        sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
-                        message = s.recvfrom(BUFFER_SIZE) # message received from guide car
-                        guideString = str(message[0])[2:-1] # guideString obtained
-                        guideString = guideString.strip("\\n").split(',')
-                        # calculate the offsets for the data and print them here
-                        # drive commands can be formed here as well
-                        print("\n--------------------------------------------------------------------")
-                        print("Local PTP Data: " + str(localString))
-                        print("Guide PTP Data: " + str(guideString))
-                        print("Calculated Offsets:")
-                        speed = calculateSkid(guideString, localString, speed)
-                        #compare(guideString, localString)
-                        print("--------------------------------------------------------------------")
+                    ### AVE ###
+                    if (AveFlag):
+                        ### CCP TO AVE ###
+                        turning = str(45)
+                        direction = "forward"
+                        speed = str(20)
+                        distance = str(1.23456)
+                        offset = str(0)
+                        aline = turning + "," + direction + "," + speed + "," + distance + "," + offset
+                        client_sock.send(aline);
+                        print("String that was just sent: %s" % aline)
+                        ### AVE TO CCP ###
+                        localString = client_sock.recv(1024)
+                        stop,lon,lat,errcount=data.split(",")
+                        print("Stopwatch: %s" % stop)
+                        print("Received Longitude: %s" % lon)
+                        print("Received Latitude: %s" % lat)
+                        print("Error Count: %s" % errcount)
 
-                        time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
+                    ### iROBOT ###
+                    else:
+                        for line in vehicleTxt:
+                            localString = line.strip().split(',') # local ptp data from file
+                            sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
+                            message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                            guideString = str(message[0])[2:-1] # guideString obtained
+                            guideString = guideString.strip("\\n").split(',')
+                            # calculate the offsets for the data and print them here
+                            # drive commands can be formed here as well
+                            print("\n--------------------------------------------------------------------")
+                            print("Local PTP Data: " + str(localString))
+                            print("Guide PTP Data: " + str(guideString))
+                            print("Calculated Offsets:")
+                            speed = calculateSkid(guideString, localString, speed)
+                            #compare(guideString, localString)
+                            print("--------------------------------------------------------------------")
 
-                    print("End of sample PTP data reached, process will now exit.")
-                    fullStop()
-                    break
+                            time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
+
+                        print("End of sample PTP data reached, process will now exit.")
+                        fullStop()
+                        break
 
             # MOTOR SHUTOFF
             except Exception as e:
-                    fullStop()
-                    print(e)
+                fullStop()
+                print(e)
 
+            # AVE CODE HERE ?
 
-        # AVE CODE HERE
-        #else:
-            # Modify these as you see fit the function definitions are included above
-            #AVE_RECIEVE_PACKET(packetString) # possibly using your bluetooth
-            #AVE_CALCULATE(leadVeh, drone) # extra math for z axis if needed
-            #AVE_SEND_PACKET() # possibly using your bluetooth
 
 main()
 s.close()
