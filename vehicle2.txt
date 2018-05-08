@@ -1,8 +1,8 @@
-false,true,follower1,false,100.0000000,100.0050000,90,0,0,0,0,0.2,0
-false,true,follower1,false,100.0000002,100.0050000,90,5,0,0,0,0.2,0
-false,true,follower1,false,100.0000005,100.0050000,90,10,0,0,0,0.2,0
-false,true,follower1,false,100.0000010,100.0050000,90,15,0,0,0,0.2,0
-false,true,follower1,false,100.0000020,100.0050000,90,20,0,0,0,0.2,0
-false,true,follower1,false,100.0000030,100.0050000,90,20,0,0,0,0.2,0
-false,true,follower1,false,100.0000040,100.0050000,90,20,0,0,0,0.2,0
+false,true,follower1,false,100.0000000,100.0050000,0,0,0,0,0,0.2,0
+false,true,follower1,false,100.0000002,100.0050000,0,5,0,0,0,0.2,0
+false,true,follower1,false,100.0000005,100.0050000,0,10,0,0,0,0.2,0
+false,true,follower1,false,100.0000010,100.0050000,0,15,0,0,0,0.2,0
+false,true,follower1,false,100.0000020,100.0050000,0,20,0,0,0,0.2,0
+false,true,follower1,false,100.0000030,100.0050000,0,20,0,0,0,0.2,0
+false,true,follower1,false,100.0000040,100.0050000,0,20,0,0,0,0.2,0
 

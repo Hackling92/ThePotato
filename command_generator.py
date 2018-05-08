@@ -62,11 +62,13 @@ def calculateRadius(guideString, localString):
     deltaLat = (getLatitude(guideString) - getLatitude(localString)) * latToMet
     distance = math.sqrt(deltaLong**2 + deltaLat**2)
     bearing = getLineOfBearing(localString)
-    vectorAngle = math.atan2(deltaLong, deltaLat)
-    theta = vectorAngle - getLineOfBearing(localString)
-    radius = distance * math.cos(((math.pi)/2) - theta)
+    vectorAngleRads = math.atan2(deltaLong, deltaLat)
+    vectorAngle = vectorAngleRads * (180 / math.pi)
+    theta = vectorAngleRads - (bearing * (math.pi / 180))
+    radius = distance / math.cos(((math.pi)/2) - theta)
     #radius = 4
-    return radius
+    print ("dist: ", distance, ", bearing: ", bearing, ", vectorAngle: ", vectorAngle)
+    return abs(radius)
 
 ## calculateSpeed #####################################
 # Inputs:       guideString, localString
@@ -104,7 +106,7 @@ def calculateSpeed(guideString, localString, currentSpeed):
 ## calculateBearing ###################################
 # Inputs:       guideString, localString
 # Outputs:      Bearing as angle in degrees (0-360)
-# Description:  This function determines what direction
+# Descripti`on:  This function determines what direction
 #               the guide vehicle is in relation to the
 #               local vehicle.
 #######################################################
@@ -112,9 +114,10 @@ def calculateBearing(guideString, localString):
     # see CalculateRadius
     deltaLong = getLongitude(guideString) - getLongitude(localString)
     deltaLat = getLatitude(guideString) - getLatitude(localString)
-    bearing = math.atan2((deltaLong*longToMet), (deltaLat*latToMet))
+    bearingRads = math.atan2((deltaLong*longToMet), (deltaLat*latToMet))
+    bearing = bearingRads * (180 / math.pi)
     #bearing = 20
-    return bearing
+    return int(bearing)
 
 ## calculateSkid ######################################
 # Inputs:       guideString, localString
