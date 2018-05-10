@@ -297,61 +297,7 @@ def main():
                 print("\t", clients)
 
         # BEGIN OPERATION (leader)
-        ### Bluetooth ###
-        #port = server_sock.getsockname()[1]
-        # Unique UUID to connect with AVE Android Phone
-        #uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-        # More setup
-        #advertise_service( server_sock, "AVECCPDataServer",
-                #service_id = uuid,
-                #service_classes = [ uuid, SERIAL_PORT_CLASS ],
-                #profiles = [ SERIAL_PORT_PROFILE ] )
-
         while (operate):
-            ### Bluetooth ###
-                #print("Waiting for connection on RFCOMM channel %d" % port)
-                #client_sock, client_info = server_sock.accept()
-                #connection = True
-                #print("Accepted connection from ", client_info)
-            #try:
-                #data = client_sock.recv(1024)
-                #if (data == "disconnect"):
-                    #print("Client wanted to disconnect")
-                    #client_sock.close()
-                    #connection = False
-
-                # this is the string that AVE is sending to RP3
-                #elif (data == "AVE test data!!"):
-                    #print ("The Android App just sent: %s" % data)
-                    # Printing for testing
-                    #print ("Fake Data is being sent here!")
-                    # this string is what RP3 sends to AVE
-                    #testTurning = "Value,"
-                    #testDirection = "Value,"
-                    #testSpeed = "Value,"
-                    #testDistance = "Value,"
-                    #testOffset = "Value"
-                    #testString = str(testTurning + testDirection + testSpeed + testDistance + testOffset)
-                    # sends string to AVE
-                    #client_sock.send("RECEIVED: %s" % testString)
-                    # Printing for testing
-                    #print("SENT: %s" % testString)
-
-            #except IOError:
-                #print("Connection disconnected!")
-                #client_sock.close()
-                #connection = False
-                #pass
-            #except BluetoothError:
-                #print("Something wrong with bluetooth")
-                # this may have to be changed in the future
-                # (it may be causing issues with continuous connection)
-            #except KeyboardInterrupt:
-                #print("\nDisconnected")
-                #client_sock.close()
-                #server_sock.close()
-                #break
-
             # put any processing data here
             # read sample data
             # Send data over WiFi
@@ -381,16 +327,14 @@ def main():
                 server_sock.bind(("",PORT_ANY))
                 server_sock.listen(1)
                 port = server_sock.getsockname()[1]
-
-                #unique UUID to connect with AVE Android Phone
+                # unique UUID to connect with AVE Android Phone
                 uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-
                 file = open("vehicle3.txt", "r")
-
                 advertise_service(server_sock, "AVECCPDataServer",
                                   service_id = uuid,
                                   service_classes = [ uuid, SERIAL_PORT_CLASS ],
                                   profiles = [ SERIAL_PORT_PROFILE ])
+        # non-AVE unit
         else:
             AveFlag = False
 
@@ -412,18 +356,10 @@ def main():
             operate = str(input("Start run (y,n): "))
             # need parallel code here to check if packet start came in
 
-            #####
-            # THIS IS A TEMP INPUT THIS WILL BE REPLACED BY THE FLAG BIT IN THE PACKET
-            # This idealy should be run on each loop iteration
-            #####
-
-            #####
-            # END TEMP CODE
-            #####
-
         # CCP2 CODE
         # NOTE: this needs to be refactored to use something like recieve calc and send
         while (operate):
+            # Confirm BT if set to AVE mode
             if (AveFlag):
                 if(BTconnection == False):
                     print("Waiting for connection on RFCOMM channel %d" % port)
@@ -436,6 +372,7 @@ def main():
                 # BEGIN OPERATION (follower)
                 speed = 0 # initial speed
                 while (True):
+
                     ### AVE ###
                     if (AveFlag):
                         ### CCP TO AVE ###
@@ -483,8 +420,6 @@ def main():
             except Exception as e:
                 fullStop()
                 print(e)
-
-            # AVE CODE HERE ?
 
 
 main()

@@ -35,8 +35,8 @@ def calculateDir(guideString, localString):
     # then reverse
     if (getVelocityX(localString) >= 0) and (getVelocityX(guideString) <= 0):
         dir = "Reverse"
-    elif (getVelocityX(localString) <= 0) and (getVelocityX(guideString) >= 0):
-        dir = "Reverse"
+    #elif (getVelocityX(localString) <= 0) and (getVelocityX(guideString) >= 0):
+        #dir = "Reverse"
     # else, Forward
     else:
         dir = "Forward"
@@ -148,7 +148,7 @@ def calculateSkid(guideString, localString, speed):
 
 
 #######################################################
-## COMPARE FUNCTIONS
+## COMPARE FUNCTIONS (mainly for testing)
 #######################################################
 
 ## compareAvePtpFlag ##################################

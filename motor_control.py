@@ -40,45 +40,41 @@ p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 ## skidSteer ##########################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
-#
+# Description:  Skid steer algorithm that allows the
+#               iRobot vehicle to make minute adjustments
+#               to steering.
 #######################################################
 def skidSteer(dir, radius, speed, bearing):
+    # Forward
     if(dir.lower() == "forward"):
-        # forward
         GPIO.output(DIG1, GPIO.HIGH)
         GPIO.output(DIG2, GPIO.HIGH)
-
         speedOuter = speed * ((radius+TRACK_DISTANCE)/radius)
-
+        # Right or straight
         if(int(bearing) >= 0):
-            # right or straight
             p1.start(speed) # right side
             p2.start(speedOuter) # left  side
-
+        # Left
         else:
-            # left
             p1.start(speedOuter) # right side
             p2.start(speed) # left  side
+    # Backward
     else:
-        # backward
         GPIO.output(DIG1, GPIO.LOW)
         GPIO.output(DIG2, GPIO.LOW)
-
-        if(int(bearing) >= 0): # this one may be backwards
-            # right or straight
+        # Right or straight
+        if(int(bearing) >= 0):
             p1.start(speedOuter) # right side
             p2.start(speed) # left  side
+        # Left
         else:
-            # left
             p1.start(speed) # right side
             p2.start(speedOuter) # left  side
 
-## fullStop ########################################### 
+## fullStop ###########################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
+# Description:  Simple command to stop all movement
 #
 #
 #######################################################
@@ -94,96 +90,96 @@ def fullStop():
 ## forward ############################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
+# Description:  Simple movement command used for vehicle
+#               test purposes.
 #
 #######################################################
 def forward(runspeed):
     print("    Forward")
-    GPIO.output(DIG1, GPIO.HIGH)          # set DIG1 as LOW, to control direction
-    GPIO.output(DIG2, GPIO.HIGH)          # set DIG2 as LOW, to control direction
-    p1.start(runspeed)                        # set speed for M1 at 100%   
+    GPIO.output(DIG1, GPIO.HIGH)         # set DIG1 as LOW, to control direction
+    GPIO.output(DIG2, GPIO.HIGH)         # set DIG2 as LOW, to control direction
+    p1.start(runspeed)                   # set speed for M1 at 100%
     p2.start(runspeed)
-    #sleep(DELAY)                             #delay for 2 second
+    #sleep(DELAY)                        # delay for 2 second
     return 0
 
-## forwardLeft ############################################
+## forwardLeft ########################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
+# Description:  Simple movement command used for vehicle
+#               test purposes.
 #
 #######################################################
 def forwardLeft(runspeed):
     print("    Forward-Left")
-    GPIO.output(DIG1, GPIO.HIGH)          # set DIG1 as LOW, to control direction
-    GPIO.output(DIG2, GPIO.HIGH)          # set DIG2 as LOW, to control direction
-    p1.start(runspeed)                        # set speed for M1 at 100%   
+    GPIO.output(DIG1, GPIO.HIGH)         # set DIG1 as LOW, to control direction
+    GPIO.output(DIG2, GPIO.HIGH)         # set DIG2 as LOW, to control direction
+    p1.start(runspeed)                   # set speed for M1 at 100%
     p2.start(runspeed - TURN)
-    #sleep(DELAY)                             #delay for 2 second
+    #sleep(DELAY)                        # delay for 2 second
     return 0
 
 ## forwardRight #######################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
+# Description:  Simple movement command used for vehicle
+#               test purposes.
 #
 #######################################################
 def forwardRight(runspeed):
     print("    Forward-Right")
-    GPIO.output(DIG1, GPIO.HIGH)          # set DIG1 as LOW, to control direction
-    GPIO.output(DIG2, GPIO.HIGH)          # set DIG2 as LOW, to control direction
-    p1.start(runspeed - TURN)                        # set speed for M1 at 100%   
+    GPIO.output(DIG1, GPIO.HIGH)         # set DIG1 as LOW, to control direction
+    GPIO.output(DIG2, GPIO.HIGH)         # set DIG2 as LOW, to control direction
+    p1.start(runspeed - TURN)            # set speed for M1 at 100%
     p2.start(runspeed)
-    #sleep(DELAY)                             #delay for 2 second
+    #sleep(DELAY)                        # delay for 2 second
     return 0
 
 ## reverse ############################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
+# Description:  Simple movement command used for vehicle
+#               test purposes.
 #
 #######################################################
 def reverse(runspeed):
     print("    Reverse")
-    GPIO.output(DIG1, GPIO.LOW)         # set DIG1 as HIGH, to control direction
-    GPIO.output(DIG2, GPIO.LOW)         # set DIG2 as HIGH, to control direction
-    p1.start(runspeed)                        # set speed for M1 at 100%
-    p2.start(runspeed)                        # set speed for M2 at 100%
-    #sleep(DELAY)                             #delay for 2 second
+    GPIO.output(DIG1, GPIO.LOW)          # set DIG1 as HIGH, to control direction
+    GPIO.output(DIG2, GPIO.LOW)          # set DIG2 as HIGH, to control direction
+    p1.start(runspeed)                   # set speed for M1 at 100%
+    p2.start(runspeed)                   # set speed for M2 at 100%
+    #sleep(DELAY)                        # delay for 2 second
     return 0
 
 ## reverseLeft ########################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
+# Description:  Simple movement command used for vehicle
+#               test purposes.
 #
 #######################################################
 def reverseLeft(runspeed):
     print("    Reverse-Left")
-    GPIO.output(DIG1, GPIO.LOW)         # set DIG1 as HIGH, to control direction
-    GPIO.output(DIG2, GPIO.LOW)         # set DIG2 as HIGH, to control direction
-    p1.start(runspeed - TURN)                        # set speed for M1 at 100%
-    p2.start(runspeed)                        # set speed for M2 at 100%
-    #sleep(DELAY)                             #delay for 2 second
+    GPIO.output(DIG1, GPIO.LOW)          # set DIG1 as HIGH, to control direction
+    GPIO.output(DIG2, GPIO.LOW)          # set DIG2 as HIGH, to control direction
+    p1.start(runspeed - TURN)            # set speed for M1 at 100%
+    p2.start(runspeed)                   # set speed for M2 at 100%
+    #sleep(DELAY)                        # delay for 2 second
     return 0
 
 ## reverseRight #######################################
 # Inputs:       N/A
 # Outputs:      N/A
-# Description:  
-#
+# Description:  Simple movement command used for vehicle
+#               test purposes.
 #
 #######################################################
 def reverseRight(runspeed):
     print("    Reverse-Right")
-    GPIO.output(DIG1, GPIO.LOW)         # set DIG1 as HIGH, to control direction
-    GPIO.output(DIG2, GPIO.LOW)         # set DIG2 as HIGH, to control direction
-    p1.start(runspeed)                        # set speed for M1 at 100%
-    p2.start(runspeed - TURN)                        # set speed for M2 at 100%
-    #sleep(DELAY)                             #delay for 2 second
+    GPIO.output(DIG1, GPIO.LOW)          # set DIG1 as HIGH, to control direction
+    GPIO.output(DIG2, GPIO.LOW)          # set DIG2 as HIGH, to control direction
+    p1.start(runspeed)                   # set speed for M1 at 100%
+    p2.start(runspeed - TURN)            # set speed for M2 at 100%
+    #sleep(DELAY)                        # delay for 2 second
     return 0
 
