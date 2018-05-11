@@ -266,10 +266,6 @@ def main():
     localString = "localString here"
     vehicleID = int(input("Vehicle ID Number: "))
 
-    # GET PANEL ID AND JOIN
-    # so here we would have our "beginOp" button press and...
-    # join = 1
-
     # FILEPATHS FOR READING DATA
     filepath = 'vehicle' + str(vehicleID) + ".txt"
     vehicleTxt = open(filepath, 'r')
@@ -317,7 +313,27 @@ def main():
 
     # NETWORK SETUP (follower)
     else:
-        ### Bluetooth ###
+
+        ### WiFi ###
+        print("Follower Number", (vehicleID - 1))
+        s.bind(("", 0))
+        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+        sendUDP("<broadcast>", 5555, "client" + str(vehicleID))
+        operate = False
+        while (True):
+            if (operate == 'y'):
+                operate = True
+                sendUDP("<broadcast>", 5555, "start")
+                recData = s.recvfrom(BUFFER_SIZE)  # get your leader and save it
+                leadAdd, leadPort = str(recData[0])[2:-1].split(':')
+                leadCar = (leadAdd, int(leadPort))
+                print("Connected to convoy.")
+                print("\tGot guide vehicle at:",leadCar)
+                break
+            operate = str(input("Start run (y,n): "))
+            # need parallel code here to check if packet start came in
+
+        ### AVE ###
         AveFlag = str(input("AVE Unit? (y,n): "))
         if (AveFlag == "y"):
             AveFlag = True
@@ -334,87 +350,80 @@ def main():
                                   service_id = uuid,
                                   service_classes = [ uuid, SERIAL_PORT_CLASS ],
                                   profiles = [ SERIAL_PORT_PROFILE ])
-        # non-AVE unit
-        else:
-            AveFlag = False
 
-        ### WiFi ###
-        print("Follower Number", (vehicleID - 1))
-        s.bind(("", 0))
-        s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-        sendUDP("<broadcast>", 5555, "client" + str(vehicleID))
-        operate = False
-        while (True):
-            if (operate):
-                sendUDP("<broadcast>", 5555, "start")
-                recData = s.recvfrom(BUFFER_SIZE)  # get your leader and save it
-                leadAdd, leadPort = str(recData[0])[2:-1].split(':')
-                leadCar = (leadAdd, int(leadPort))
-                print("Connected to convoy.")
-                print("\tGot guide vehicle at:",leadCar)
-                break
-            operate = str(input("Start run (y,n): "))
-            # need parallel code here to check if packet start came in
-
-        # CCP2 CODE
-        # NOTE: this needs to be refactored to use something like recieve calc and send
-        while (operate):
-            # Confirm BT if set to AVE mode
-            if (AveFlag):
-                if(BTconnection == False):
-                    print("Waiting for connection on RFCOMM channel %d" % port)
-                    client_sock, client_info = server_sock.accept()
-                    BTconnection = True
-                    print("Accepted connection from ", client_info)
-
-            # BREAKS ON INTERRUPT
-            try:
-                # BEGIN OPERATION (follower)
-                speed = 0 # initial speed
-                while (True):
-
-                    ### AVE ###
+                while (operate):
+                    # Confirm BT if set to AVE mode
                     if (AveFlag):
-                        ### CCP TO AVE ###
-                        turning = str(45)
-                        direction = "forward"
-                        speed = str(20)
-                        distance = str(1.23456)
-                        offset = str(0)
-                        aline = turning + "," + direction + "," + speed + "," + distance + "," + offset
-                        client_sock.send(aline);
-                        print("String that was just sent: %s" % aline)
-                        ### AVE TO CCP ###
-                        localString = client_sock.recv(1024)
-                        stop,lon,lat,errcount=data.split(",")
-                        print("Stopwatch: %s" % stop)
-                        print("Received Longitude: %s" % lon)
-                        print("Received Latitude: %s" % lat)
-                        print("Error Count: %s" % errcount)
+                        if(BTconnection == False):
+                            print("Waiting for connection on RFCOMM channel %d" % port)
+                            client_sock, client_info = server_sock.accept()
+                            BTconnection = True
+                            print("Accepted connection from ", client_info)
 
-                    ### iROBOT ###
-                    else:
-                        for line in vehicleTxt:
-                            localString = line.strip().split(',') # local ptp data from file
-                            sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
-                            message = s.recvfrom(BUFFER_SIZE) # message received from guide car
-                            guideString = str(message[0])[2:-1] # guideString obtained
-                            guideString = guideString.strip("\\n").split(',')
-                            # calculate the offsets for the data and print them here
-                            # drive commands can be formed here as well
-                            print("\n--------------------------------------------------------------------")
-                            print("Local PTP Data: " + str(localString))
-                            print("Guide PTP Data: " + str(guideString))
-                            print("Calculated Offsets:")
-                            speed = calculateSkid(guideString, localString, speed)
-                            #compare(guideString, localString)
-                            print("--------------------------------------------------------------------")
+                    # BREAKS ON INTERRUPT
+                    try:
+                        # BEGIN OPERATION (follower)
+                        speed = 0 # initial speed
+                        while (True):
+                            ### CCP TO AVE ###
+                            turning = str(45)
+                            direction = "forward"
+                            speed = str(20)
+                            distance = str(1.23456)
+                            offset = str(0)
+                            aline = turning + "," + direction + "," + speed + "," + distance + "," + offset
+                            client_sock.send(aline);
+                            print("String that was just sent: %s" % aline)
+                            ### AVE TO CCP ###
+                            localString = client_sock.recv(1024)
+#                            stop,lon,lat,errcount=data.split(",")
+                            print("Stopwatch: %s" % stop)
+                            print("Received Longitude: %s" % lon)
+                            print("Received Latitude: %s" % lat)
+                            print("Error Count: %s" % errcount)
 
-                            time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
-
-                        print("End of sample PTP data reached, process will now exit.")
-                        fullStop()
+                    except IOError:
+                        print("Connection disconnected!")
+                        client_sock.close()
+                        connection = False
+                        pass
+                    except BluetoothError:
+                        print("Something wrong with bluetooth")
+                        # this may have to be changed in the future
+                        # (it may be causing issues with continuous connection)
+                    except KeyboardInterrupt:
+                        print("\nDisconnected")
+                        client_sock.close()
+                        server_sock.close()
                         break
+                    server_sock.close()
+
+        ### iROBOT ###
+        else:
+            try:
+                while (operate):
+                    speed = 0
+                    for line in vehicleTxt:
+                        localString = line.strip().split(',') # local ptp data from file
+                        sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
+                        message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                        guideString = str(message[0])[2:-1] # guideString obtained
+                        guideString = guideString.strip("\\n").split(',')
+                        # calculate the offsets for the data and print them here
+                        # drive commands can be formed here as well
+                        print("\n--------------------------------------------------------------------")
+                        print("Local PTP Data: " + str(localString))
+                        print("Guide PTP Data: " + str(guideString))
+                        print("Calculated Offsets:")
+                        speed = calculateSkid(guideString, localString, speed)
+                        #compare(guideString, localString)
+                        print("--------------------------------------------------------------------")
+
+                        time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
+
+                    print("End of sample PTP data reached, process will now exit.")
+                    fullStop()
+                    break
 
             # MOTOR SHUTOFF
             except Exception as e:
