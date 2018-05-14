@@ -254,6 +254,9 @@ def compare(guideString,localString):
 #               is assigned as leader or follower.
 #######################################################
 def main():
+    global operate
+    global join
+
 
     # CONTROL PANEL SETUP
     GPIO.setup(outputPins, GPIO.OUT) # set all led pins as outputs
@@ -327,8 +330,9 @@ def main():
         sendUDP("<broadcast>", 5555, "client" + str(vehicleID))
         operate = False
         while (True):
-            if (operate == 'y'):
-                operate = True
+            if (operate):
+                print("IN OPERATE: B4 RECV")
+                #operate = True
                 sendUDP("<broadcast>", 5555, "start")
                 recData = s.recvfrom(BUFFER_SIZE)  # get your leader and save it
                 leadAdd, leadPort = str(recData[0])[2:-1].split(':')
@@ -336,7 +340,7 @@ def main():
                 print("Connected to convoy.")
                 print("\tGot guide vehicle at:",leadCar)
                 break
-            operate = str(input("Start run (y,n): "))
+            #operate = str(input("Start run (y,n): "))
             # need parallel code here to check if packet start came in
 
         ### AVE ###
