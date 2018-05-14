@@ -35,7 +35,12 @@ import bluetooth
 #import RPi.GPIO as GPIO
 from bluetooth import *
 
+### PTP ###
+import gps_read
+
 ### GLOBALS ###
+# PTP
+gps = gps_read.gps_read()
 # network
 BUFFER_SIZE = 1500
 vehicleID = 0
@@ -298,6 +303,7 @@ def main():
             # read sample data
             # Send data over WiFi
             for line in vehicleTxt:
+                #print (gps.gpsread())
                 localString = line
                 # prepare message to be sent
                 message = s.recvfrom(BUFFER_SIZE)  # get location request
