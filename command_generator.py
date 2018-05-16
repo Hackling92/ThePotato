@@ -67,7 +67,6 @@ def calculateRadius(guideString, localString):
     theta = vectorAngleRads - (bearing * (math.pi / 180))
     radius = distance / math.cos(((math.pi)/2) - theta)
     #radius = 4
-    print ("dist: ", distance, ", bearing: ", bearing, ", vectorAngle: ", vectorAngle)
     return abs(radius)
 
 ## calculateSpeed #####################################
@@ -96,7 +95,6 @@ def calculateSpeed(guideString, localString, currentSpeed):
         deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
         deltaLat = (getLatitude(guideString) - getLatitude(localString)) * latToMet
         distance = math.sqrt(deltaLong**2 + deltaLat**2)
-        print("DISTANCE = ", distance)
         if ((distance < 2) and (currentSpeed >= 5)):
             newSpeed = currentSpeed - 5
         else:
@@ -133,7 +131,7 @@ def calculateSkid(guideString, localString, speed):
     newSpeed = calculateSpeed(guideString, localString, speed)
     bearing = calculateBearing(guideString, localString)
     # Execute skid steer
-    #skidSteer(dir, radius, newSpeed, bearing)
+    skidSteer(dir, radius, newSpeed, bearing)
     # Return speed for future calculations
     print("----------------------")
     print ("VALUES FOR SKIDSTEER:")

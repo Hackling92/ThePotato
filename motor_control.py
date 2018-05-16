@@ -45,9 +45,10 @@ p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 #               to steering.
 #######################################################
 def skidSteer(dir, radius, speed, bearing):
+    speedOuter = speed * ((radius+TRACK_DISTANCE)/radius)
     # Forward
     if(dir.lower() == "forward"):
-        GPIO.output(DIG1, GPIO.HIGH)
+        GPIO.output(DIG1, GPIO.LOW)
         GPIO.output(DIG2, GPIO.HIGH)
         speedOuter = speed * ((radius+TRACK_DISTANCE)/radius)
         # Right or straight
@@ -60,7 +61,7 @@ def skidSteer(dir, radius, speed, bearing):
             p2.start(speed) # left  side
     # Backward
     else:
-        GPIO.output(DIG1, GPIO.LOW)
+        GPIO.output(DIG1, GPIO.HIGH)
         GPIO.output(DIG2, GPIO.LOW)
         # Right or straight
         if(int(bearing) >= 0):

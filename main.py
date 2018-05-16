@@ -21,7 +21,7 @@ from command_generator import *
 # For Vehicle GPIO
 from motor_control import *
 import RPi.GPIO as GPIO                 # using Rpi.GPIO module
-#from time import sleep                  # import function sleep for delay
+#from time import sleep                 # import function sleep for delay
 GPIO.setmode(GPIO.BOARD)                # GPIO numbering
 GPIO.setwarnings(False)                 # enable warning from GPIO
 
@@ -40,8 +40,10 @@ import gps_read
 
 ### GLOBALS ###
 # AVE
-USING_AVE = True
+USING_AVE = False 			#FLAG used to set CCP to AVE or iRobot mode
 # PTP
+USING_PTP = False			#FLAG used to switch between PTP or test data
+PTP_TEST = True 			#FLAG used to show test print for PTP data
 gps = gps_read.gps_read()
 # network
 BUFFER_SIZE = 1500
@@ -166,6 +168,7 @@ def haltOp(channel):
     print("Halt Operation Pressed")
     global operate
     operate = False
+    sendStopMessage()
 
 ## AVE_RECIEVE_PACKET #################################
 # Inputs:       N/A
@@ -236,6 +239,10 @@ def sendHeadToClient():
     for i in range(0,len(clients) - 1):
         sendUDP(clients[i + 1][0], clients[i + 1][1], str(clients[i][0]) + ":" + str(clients[i][1]))
 
+def sendStopMessage():
+    for i in range(0,len(clients)):
+        sendUDP(clients[i][0],clients[i][1], "stop")
+
 ## compare ############################################
 # Inputs:       guideString, localString
 # Outputs:      N/A
@@ -298,7 +305,10 @@ def main():
     print("GOT ID: " + str(vehicleID))
 
     # FILEPATHS FOR READING DATA
-    filepath = 'vehicle' + str(vehicleID) + ".txt"
+    if (vehicleID == 1):
+        filepath = "leadsim.txt"
+    else:
+        filepath = "testrun.txt"
     vehicleTxt = open(filepath, 'r')
 
     # SETUP DATA FOR TESTING
@@ -325,23 +335,42 @@ def main():
 
         # BEGIN OPERATION (leader)
         while (operate):
-            # put any processing data here
-            # read sample data
-            # Send data over WiFi
-            for line in vehicleTxt:
-                #print (gps.gpsread())
-                localString = line
-                # prepare message to be sent
-                message = s.recvfrom(BUFFER_SIZE)  # get location request
+
+            # read sample data from file and send data over network
+            if (not USING_PTP):
+                for line in vehicleTxt:
+                    #print (gps.gpsread())
+                    localString = line
+                    # prepare message to be sent
+                    message = s.recvfrom(BUFFER_SIZE)  # get location request
+                    if (str(message[0])[2:-1] == "getLocation"):
+                        sendUDP(message[1][0], message[1][1], str(localString))
+                        localString = line.strip().split(',')
+                        print("\n--------------------------------------------------------------------")
+                        print("Sending location data to: " + str(message[1]))
+                        print("\tData: " + str(localString))
+                        print("--------------------------------------------------------------------\n")
+                    elif(str(message[0])[2:-1] == "stop"):
+                        operate = False
+                        break
+                #print("End of sample PTP data reached, process will now exit.")
+                break
+            # Pulls PTP data and sends over network
+            else:
+                if (PTP_TEST):
+                    print("Acquiring PTP Data...")
+                localString = gps.gpsread()
+                message = s.recvfrom(BUFFER_SIZE)
                 if (str(message[0])[2:-1] == "getLocation"):
                     sendUDP(message[1][0], message[1][1], str(localString))
                     localString = line.strip().split(',')
-                    #print("\n--------------------------------------------------------------------")
-                    #print("Sending location data to: " + str(message[1]))
-                    #print("\tData: " + str(localString))
-                    #print("--------------------------------------------------------------------\n")
-            #print("End of sample PTP data reached, process will now exit.")
-            break
+                    print("\n--------------------------------------------------------------------")
+                    print("Sending location data to: " + str(message[1]))
+                    print("\tData: " + str(localString))
+                    print("--------------------------------------------------------------------\n")
+                elif(str(message[0])[2:-1] == "stop"):
+                    operate = False
+                    break
 
     # NETWORK SETUP (follower)
     else:
@@ -435,36 +464,59 @@ def main():
             try:
                 while (operate):
                     speed = 0
-                    for line in vehicleTxt:
-                        localString = line.strip().split(',') # local ptp data from file
-                        sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
-                        message = s.recvfrom(BUFFER_SIZE) # message received from guide car
-                        guideString = str(message[0])[2:-1] # guideString obtained
+                    if (not USING_PTP):
+                        for line in vehicleTxt:
+                            localString = line.strip().split(',') # local ptp data from file
+                            sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
+                            message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                            # if a stop signal is received stop the convoy
+                            if(str(message[0])[2:-1] == "stop"):
+                                operate = False
+                                break
+                            guideString = str(message[0])[2:-1] # guideString obtained
+                            guideString = guideString.strip("\\n").split(',')
+                            # calculate the offsets for the data and print them here
+                            # drive commands can be formed here as well
+                            print("\n--------------------------------------------------------------------")
+                            print("Local PTP Data: " + str(localString))
+                            print("Guide PTP Data: " + str(guideString))
+                            speed = calculateSkid(guideString, localString, speed)
+                            #compare(guideString, localString)
+                            print("----------------------------------------------------------------------")
+                            if(operate == False):
+                                break;
+                            time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
+                        print("End of sample PTP data reached, process will now exit.")
+                        fullStop()
+                        break
+                    else:
+                        if (PTP_TEST):
+                            print("Acquiring PTP Data...")
+                        localString = gps.gpsread().strip.split(',')
+                        sendUDP(leadCar[0], leadCar[1], "getLocation")  # a$
+                        message = s.recvfrom(BUFFER_SIZE) # message receive$
+                        # if a stop signal is received stop the convoy
+                        if(str(message[0])[2:-1] == "stop"):
+                            operate = False
+                            break
+                        guideString = str(message[0])[2:-1] # guideString o$
                         guideString = guideString.strip("\\n").split(',')
-                        # calculate the offsets for the data and print them here
-                        # drive commands can be formed here as well
-                        #print("\n--------------------------------------------------------------------")
-                        #print("Local PTP Data: " + str(localString))
-                        #print("Guide PTP Data: " + str(guideString))
-                        #print("Calculated Offsets:")
+                        print("\n--------------------------------------------------------------------")
+                        print("Local PTP Data: " + str(localString))
+                        print("Guide PTP Data: " + str(guideString))
+                        print("Calculated Offsets:")
                         speed = calculateSkid(guideString, localString, speed)
                         #compare(guideString, localString)
-                        #print("--------------------------------------------------------------------")
+                        print("--------------------------------------------------------------------")
+                        speed = calculateSkid(guideString, localString, speed)
 
-                        if(operate == False):
-                            break;
-
-                        time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
-
-                    print("End of sample PTP data reached, process will now exit.")
-                    fullStop()
-                    break
 
             # MOTOR SHUTOFF
-            except Exception as e:
+            finally:
                 fullStop()
-                print(e)
+                print("FULL STOP, CODE END")
 
 
 main()
 s.close()
+
