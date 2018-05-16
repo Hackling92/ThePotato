@@ -4,5 +4,5 @@ run3:
 run2:
 	python main.py
 
-clean:
-	find . -name '*.pyc' -exec rm --force {} +
+#clean:
+#	find . -name '*.pyc' -exec rm --force {} +

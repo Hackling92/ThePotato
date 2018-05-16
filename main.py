@@ -39,6 +39,8 @@ from bluetooth import *
 import gps_read
 
 ### GLOBALS ###
+# AVE
+USING_AVE = True
 # PTP
 gps = gps_read.gps_read()
 # network
@@ -50,13 +52,13 @@ leadCar = 0
 startPressed = False
 # control panel
 DEBOUNCE_INTERVAL = 150
-inputPins = [32,22,12,33]
+inputPins = [33,22,12,32]
 outputPins = [11,13,15,19,21,23,29,31,35,37,40,38,36]
-buttons = {1: 32, 2: 22, 3: 12, 4: 33}
+buttons = {1: 33, 2: 22, 3: 12, 4: 32}
 global selCnt
 global join
 global operate
-selCnt = 0
+selCnt = 1
 join = 0
 operate = 0
 leftTestData = ['0','1','7','u','n']
@@ -112,10 +114,16 @@ def printSegment(pos, char):
 # Description:	
 #######################################################
 def selectUp(channel):
-    print("Up Pressed")
     global selCnt
-    selCnt = (selCnt + 1) % 15
-    printSegment('both', str(selCnt))
+    global join
+    if(join == False):
+        selCnt = (selCnt + 1) % 16
+    if(selCnt == 0):
+        selCnt = 1
+    if(selCnt < 10):
+        printSegment('both', "0" + str(selCnt))
+    else:
+        printSegment('both', "1" + str(selCnt - 10))
 
 ## selectDown #########################################
 # Inputs:       channel
@@ -123,10 +131,17 @@ def selectUp(channel):
 # Description:  
 #######################################################
 def selectDown(channel):
-    print("Down Pressed")
     global selCnt
-    selCnt = (selCnt - 1) % 15
-    printSegment('both', str(selCnt))
+    global join
+    if(join == False):
+        selCnt = (selCnt - 1) % 16
+    if(selCnt == 0):
+        selCnt = 15
+    if(selCnt < 10):
+        printSegment('both', "0" + str(selCnt))
+    else:
+        printSegment('both', "1" + str(selCnt - 10))
+
 
 ## beginOP ############################################
 # Inputs:       channel
@@ -254,9 +269,10 @@ def compare(guideString,localString):
 #               is assigned as leader or follower.
 #######################################################
 def main():
+
     global operate
     global join
-
+    global selCnt
 
     # CONTROL PANEL SETUP
     GPIO.setup(outputPins, GPIO.OUT) # set all led pins as outputs
@@ -265,14 +281,21 @@ def main():
     GPIO.output(disp['right']['blank'], GPIO.LOW)   # clear any old segments
     GPIO.add_event_detect(buttons[1], GPIO.FALLING, callback=selectUp, bouncetime=DEBOUNCE_INTERVAL)
     GPIO.add_event_detect(buttons[2], GPIO.FALLING, callback=selectDown, bouncetime=DEBOUNCE_INTERVAL)
-    GPIO.add_event_detect(buttons[3], GPIO.FALLING, callback=beginOp, bouncetime=DEBOUNCE_INTERVAL)
+    GPIO.add_event_detect(buttons[3], GPIO.FALLING, callback=beginOp, bouncetime=600)
     GPIO.add_event_detect(buttons[4], GPIO.FALLING, callback=haltOp, bouncetime=DEBOUNCE_INTERVAL)
+
+    printSegment('both', "01")
 
     # INITIAL NETWORK SETUP
     global vehicleID
     global startPressed
     localString = "localString here"
-    vehicleID = int(input("Vehicle ID Number: "))
+    #vehicleID = int(input("Vehicle ID Number: "))
+    print("Please enter vehicle ID...")
+    while(join == False):
+        vehicleID = selCnt
+
+    print("GOT ID: " + str(vehicleID))
 
     # FILEPATHS FOR READING DATA
     filepath = 'vehicle' + str(vehicleID) + ".txt"
@@ -313,11 +336,11 @@ def main():
                 if (str(message[0])[2:-1] == "getLocation"):
                     sendUDP(message[1][0], message[1][1], str(localString))
                     localString = line.strip().split(',')
-                    print("\n--------------------------------------------------------------------")
-                    print("Sending location data to: " + str(message[1]))
-                    print("\tData: " + str(localString))
-                    print("--------------------------------------------------------------------\n")
-            print("End of sample PTP data reached, process will now exit.")
+                    #print("\n--------------------------------------------------------------------")
+                    #print("Sending location data to: " + str(message[1]))
+                    #print("\tData: " + str(localString))
+                    #print("--------------------------------------------------------------------\n")
+            #print("End of sample PTP data reached, process will now exit.")
             break
 
     # NETWORK SETUP (follower)
@@ -328,11 +351,10 @@ def main():
         s.bind(("", 0))
         s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
         sendUDP("<broadcast>", 5555, "client" + str(vehicleID))
+        print("Waiting for start button press...")
         operate = False
         while (True):
             if (operate):
-                print("IN OPERATE: B4 RECV")
-                #operate = True
                 sendUDP("<broadcast>", 5555, "start")
                 recData = s.recvfrom(BUFFER_SIZE)  # get your leader and save it
                 leadAdd, leadPort = str(recData[0])[2:-1].split(':')
@@ -340,13 +362,13 @@ def main():
                 print("Connected to convoy.")
                 print("\tGot guide vehicle at:",leadCar)
                 break
-            #operate = str(input("Start run (y,n): "))
-            # need parallel code here to check if packet start came in
+
 
         ### AVE ###
-        AveFlag = str(input("AVE Unit? (y,n): "))
-        if (AveFlag == "y"):
-            AveFlag = True
+        #AveFlag = str(input("AVE Unit? (y,n): "))
+        AveFlag = USING_AVE
+        if (AveFlag):
+            #AveFlag = True
             BTconnection = False
             while (BTconnection == False):
                 server_sock=BluetoothSocket( RFCOMM )
@@ -421,13 +443,16 @@ def main():
                         guideString = guideString.strip("\\n").split(',')
                         # calculate the offsets for the data and print them here
                         # drive commands can be formed here as well
-                        print("\n--------------------------------------------------------------------")
-                        print("Local PTP Data: " + str(localString))
-                        print("Guide PTP Data: " + str(guideString))
-                        print("Calculated Offsets:")
+                        #print("\n--------------------------------------------------------------------")
+                        #print("Local PTP Data: " + str(localString))
+                        #print("Guide PTP Data: " + str(guideString))
+                        #print("Calculated Offsets:")
                         speed = calculateSkid(guideString, localString, speed)
                         #compare(guideString, localString)
-                        print("--------------------------------------------------------------------")
+                        #print("--------------------------------------------------------------------")
+
+                        if(operate == False):
+                            break;
 
                         time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
 
