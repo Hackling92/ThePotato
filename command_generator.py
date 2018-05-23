@@ -33,7 +33,7 @@ latToMet = 111021
 def calculateDir(guideString, localString):
     # If local velocity == 0 and distance is decreasing
     # then reverse
-    if (getVelocityX(localString) >= 0) and (getVelocityX(guideString) <= 0):
+    if (getVelocity(localString) >= 0) and (getVelocity(guideString) <= 0):
         dir = "Reverse"
     #elif (getVelocityX(localString) <= 0) and (getVelocityX(guideString) >= 0):
         #dir = "Reverse"
@@ -41,6 +41,20 @@ def calculateDir(guideString, localString):
     else:
         dir = "Forward"
     return dir
+
+## calculateDist ######################################
+# Inputs:       guideString, localString
+# Outputs:      Distance in meters
+# Description:  This function determines what distance
+#               the vehicles are apart. This is
+#               determined by listed inputs.
+#######################################################
+def calculateDist(guideString, localString):
+    # Pythagorean Theorem
+    deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
+    deltaLat = (getLatitude(guideString) - getLatitude(localString)) * latToMet
+    dist = math.sqrt(deltaLong**2 + deltaLat**2)
+    return dist
 
 ## calculateRadius ####################################
 # Inputs:       guideString, localString
@@ -58,15 +72,36 @@ def calculateRadius(guideString, localString):
     #   - theta = vectorAngle - localBearing
     #   - vectorAngle = tan-1(long/lat) !! USE THIS TO CALCULATE BEARING
     # - then radius = distance * cos(90 - theta).
+    print ("IN CALCULATIONS:")
+    # see CalculateRadius
     deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
-    deltaLat = (getLatitude(guideString) - getLatitude(localString)) * latToMet
+    deltaLat = (getLatitude(localString) - getLatitude(guideString)) * latToMet
+    print ("Delta Long: ", str(deltaLong))
+    print ("Delta Lat: ", str(deltaLat))
+    # Div by zero
+    if (deltaLat == 0):
+        deltaLong = 0.00001
     distance = math.sqrt(deltaLong**2 + deltaLat**2)
+    print ("Distance: ", str(distance))
     bearing = getLineOfBearing(localString)
+    # account for math.atan2
+    if (bearing > 180):
+        bearing = bearing - 360
+    print ("Current Bearing: ", str(bearing))
+    # This gives -180 to 180, -90 being left, 90 being right
     vectorAngleRads = math.atan2(deltaLong, deltaLat)
     vectorAngle = vectorAngleRads * (180 / math.pi)
-    theta = vectorAngleRads - (bearing * (math.pi / 180))
-    radius = distance / math.cos(((math.pi)/2) - theta)
+    print ("Vector Angle: ", str(vectorAngle))
+    theta = vectorAngle - bearing
+    print ("New Bearing: ", str(theta))
+    print ("----------------------")
+    # This is radius specific calculations
+    theta = (90 - (abs(theta) % 90.0)) # inverted angle
+    diameter = (distance / math.cos(theta))
+    radius = (diameter / 2)
     #radius = 4
+    if (radius == 0):
+        radius = 0.0001
     return abs(radius)
 
 ## calculateSpeed #####################################
@@ -78,18 +113,27 @@ def calculateRadius(guideString, localString):
 #######################################################
 def calculateSpeed(guideString, localString, currentSpeed):
     # Velocity difference between vehicles
-    guideSquareX = getVelocityX(guideString)**2
-    guideSquareY = getVelocityY(guideString)**2
-    localSquareX = getVelocityX(localString)**2
-    localSquareY = getVelocityY(localString)**2
-    guideVelocity = math.sqrt(guideSquareX + guideSquareY)
-    localVelocity = math.sqrt(localSquareX + localSquareY)
+    #guideSquareX = getVelocityX(guideString)**2
+    #guideSquareY = getVelocityY(guideString)**2
+    #localSquareX = getVelocityX(localString)**2
+    #localSquareY = getVelocityY(localString)**2
+    #guideVelocity = math.sqrt(guideSquareX + guideSquareY)
+    #localVelocity = math.sqrt(localSquareX + localSquareY)
+    speedFactor = 20
+    distanceFactor = 1
+    guideVelocity = getVelocity(guideString) * speedFactor
+    localVelocity = getVelocity(localString) * speedFactor
     # Same velocities
-    if (guideVelocity == localVelocity):
+    if (abs(guideVelocity-localVelocity) < 0):
         newSpeed = currentSpeed
     # Guide faster than local
     elif (guideVelocity > localVelocity):
-        newSpeed = currentSpeed + 5
+        # Speed Limit
+        speedLimit = 40
+        if (currentSpeed <= (speedLimit-5)):
+            newSpeed = currentSpeed + 5
+        else:
+            newSpeed = currentSpeed
     # Local faster than guide
     elif (guideVelocity < localVelocity):
         deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
@@ -104,18 +148,28 @@ def calculateSpeed(guideString, localString, currentSpeed):
 ## calculateBearing ###################################
 # Inputs:       guideString, localString
 # Outputs:      Bearing as angle in degrees (0-360)
-# Descripti`on:  This function determines what direction
+# Description:  This function determines what direction
 #               the guide vehicle is in relation to the
 #               local vehicle.
 #######################################################
 def calculateBearing(guideString, localString):
     # see CalculateRadius
-    deltaLong = getLongitude(guideString) - getLongitude(localString)
-    deltaLat = getLatitude(guideString) - getLatitude(localString)
-    bearingRads = math.atan2((deltaLong*longToMet), (deltaLat*latToMet))
-    bearing = bearingRads * (180 / math.pi)
+    deltaLong = (getLongitude(guideString) - getLongitude(localString)) * longToMet
+    deltaLat = (getLatitude(localString) - getLatitude(guideString)) * latToMet
+    # Div by zero
+    if (deltaLat == 0):
+        deltaLong = 0.00001
+    distance = math.sqrt(deltaLong**2 + deltaLat**2)
+    bearing = getLineOfBearing(localString)
+    # account for math.atan2
+    if (bearing > 180):
+        bearing = bearing - 360
+    # This gives -180 to 180, -90 being left, 90 being right
+    vectorAngleRads = math.atan2(deltaLong, deltaLat)
+    vectorAngle = vectorAngleRads * (180 / math.pi)
+    theta = vectorAngle - bearing
     #bearing = 20
-    return int(bearing)
+    return int(theta)
 
 ## calculateSkid ######################################
 # Inputs:       guideString, localString
@@ -131,15 +185,14 @@ def calculateSkid(guideString, localString, speed):
     newSpeed = calculateSpeed(guideString, localString, speed)
     bearing = calculateBearing(guideString, localString)
     # Execute skid steer
-    skidSteer(dir, radius, newSpeed, bearing)
-    # Return speed for future calculations
-    print("----------------------")
     print ("VALUES FOR SKIDSTEER:")
     print ("dir =      ", dir)
     print ("radius =   ", radius)
     print ("newSpeed = ", newSpeed)
     print ("bearing =  ", bearing)
     print ("---------------------")
+    skidSteer(dir, radius, newSpeed, bearing)
+    # Return speed for future calculations
     return newSpeed
 
 

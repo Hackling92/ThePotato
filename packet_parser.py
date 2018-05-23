@@ -98,7 +98,7 @@ def getEmergencyStop(dataString):
 #               the function that is called.
 #######################################################
 def getLatitude(dataString):
-	return float(dataString[4])
+	return float(dataString[0])
 
 ## getLongitude #######################################
 # Inputs:       string dataString
@@ -108,7 +108,7 @@ def getLatitude(dataString):
 #               the function that is called.
 #######################################################
 def getLongitude(dataString):
-        return float(dataString[5])
+	return float(dataString[1])
 
 ## getLineOfBearing ###################################
 # Inputs:       string dataString
@@ -118,7 +118,18 @@ def getLongitude(dataString):
 #               the function that is called.
 #######################################################
 def getLineOfBearing(dataString):
-	return int(dataString[6])
+	return float(dataString[2])
+
+## getVelocity ########################################
+# Inputs:       string dataString
+# Outputs:      Specific location data (size varies)
+# Description:  Parses the binary string given as input
+#               and selects specific data depending on
+#               the function that is called.
+#######################################################
+def getVelocity(dataString):
+        return float(dataString[3])
+
 
 ## getVelocityX #######################################
 # Inputs:       string dataString

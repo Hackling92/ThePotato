@@ -24,7 +24,7 @@ DIG1 = 26                               # set dir1 pin on MD10-Hat
 RUNSPEED = 10
 DELAY = 2
 TURN = 8
-TRACK_DISTANCE = 5
+TURN_FACTOR = 0.8
 
 GPIO.setup(AN2, GPIO.OUT)               # set pin as output
 GPIO.setup(AN1, GPIO.OUT)               # set pin as output
@@ -45,18 +45,29 @@ p2 = GPIO.PWM(AN2, 100)                 # set pwm for M2
 #               to steering.
 #######################################################
 def skidSteer(dir, radius, speed, bearing):
-    speedOuter = speed * ((radius+TRACK_DISTANCE)/radius)
+    speedOuter = speed * ((radius+TURN_FACTOR)/radius)
+    if (speedOuter > (speed*4)):
+        speedOuter = (speed*4)
+    if (speedOuter > 100):
+        speedOuter = 100
+    print("VALUES FOR MOTOR CONTROLS:")
+    print("Inner Speed: ", speed)
+    print("Outer Speed: ", speedOuter)
     # Forward
     if(dir.lower() == "forward"):
         GPIO.output(DIG1, GPIO.LOW)
         GPIO.output(DIG2, GPIO.HIGH)
-        speedOuter = speed * ((radius+TRACK_DISTANCE)/radius)
         # Right or straight
-        if(int(bearing) >= 0):
+        if(int(bearing) > 0):
+            if (int(bearing) == 0):
+                print("Going Straight")
+            else:
+                print("Going Right at " + str(abs(bearing)) + " Degrees")
             p1.start(speed) # right side
             p2.start(speedOuter) # left  side
         # Left
         else:
+            print("Going Left at " + str(abs(bearing)) + " Degrees")
             p1.start(speedOuter) # right side
             p2.start(speed) # left  side
     # Backward
@@ -64,11 +75,16 @@ def skidSteer(dir, radius, speed, bearing):
         GPIO.output(DIG1, GPIO.HIGH)
         GPIO.output(DIG2, GPIO.LOW)
         # Right or straight
-        if(int(bearing) >= 0):
+        if(int(bearing) < 180):
+            if (int(bearing) == 0):
+                print("Going Straight")
+            else:
+                print("Going Right at " + str(abs(bearing)) + " Degrees")
             p1.start(speedOuter) # right side
             p2.start(speed) # left  side
         # Left
         else:
+            print("Going Left at " + str(abs(bearing)) + " Degrees")
             p1.start(speed) # right side
             p2.start(speedOuter) # left  side
 

@@ -35,20 +35,28 @@ import bluetooth
 #import RPi.GPIO as GPIO
 from bluetooth import *
 
-### PTP ###
-import gps_read
-
 ### GLOBALS ###
 # AVE
 USING_AVE = False 			#FLAG used to set CCP to AVE or iRobot mode
+AVE_TEST = False
 # PTP
 USING_PTP = False			#FLAG used to switch between PTP or test data
+if (USING_PTP):
+    import PTP
+    ptpi = PTP.PTP()
+    print("Waiting 60sec for filter")
+    count = 0
+    while(count < 20):
+        ptpi.predict_update()
+        time.sleep(0.5)
+        count += 1
+        print("Time Count:", count)
 PTP_TEST = True 			#FLAG used to show test print for PTP data
-gps = gps_read.gps_read()
 # network
 BUFFER_SIZE = 1500
 vehicleID = 0
 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
 clients = []                            # used by leader for setup
 leadCar = 0
 startPressed = False
@@ -60,9 +68,11 @@ buttons = {1: 33, 2: 22, 3: 12, 4: 32}
 global selCnt
 global join
 global operate
+global localPress
 selCnt = 1
 join = 0
 operate = 0
+localPress = False
 leftTestData = ['0','1','7','u','n']
 rightTestData = ['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f']
 
@@ -151,13 +161,16 @@ def selectDown(channel):
 # Description:  
 #######################################################
 def beginOp(channel):
-    print("Begin Operation Pressed")
+    #print("Begin Operation Pressed")
     global join
     global operate
     if (join == False):
         join = True
     elif (join == True):
+        sendUDP("192.168.0.1", 5555, "start")
+        localPress = True	
         operate = True
+
 
 ## haltOp #############################################
 # Inputs:       channel
@@ -218,6 +231,9 @@ def clientInList(user):
 #               message.
 #######################################################
 def sendUDP(ip,port,message):
+    #print("\n\nUDP MESSAGE SENT: ", message)
+    #print("\tDEST IP:",ip)
+    #print("\tDEST PORT:",port,"\n\n")
     s.sendto(message.encode('utf-8'), (ip,port))
 
 ## sendHeadToClient ###################################
@@ -229,15 +245,20 @@ def sendUDP(ip,port,message):
 #######################################################
 def sendHeadToClient():
     if(os.name == "nt"):
-        ipAddr = socket.gethostnyname(socket.gethostname())
+        ipAddr = socket.gethostbyname(socket.gethostname())
     else:
         ipAddr = str(check_output(["hostname", "-I"]))[2:-1].strip()
-    if(len(clients) == 1):
-        headClient = (ipAddr, 5555)
-        sendUDP(clients[0][0], clients[0][1], str(headClient[0]) + ":" + str(headClient[1]))
-        leadCar = ('',)
+    #if(len(clients) == 1):
+    headClient = (ipAddr, 5555)
+    sendUDP(clients[0][0], clients[0][1], str(headClient[0]) + ":" + str(headClient[1]))
+    leadCar = ('',)
     for i in range(0,len(clients) - 1):
         sendUDP(clients[i + 1][0], clients[i + 1][1], str(clients[i][0]) + ":" + str(clients[i][1]))
+
+def sendStartToClient():
+    for i in range(0,len(clients)):
+        sendUDP(clients[i][0], clients[i][1], str("start"))
+
 
 def sendStopMessage():
     for i in range(0,len(clients)):
@@ -296,6 +317,7 @@ def main():
     # INITIAL NETWORK SETUP
     global vehicleID
     global startPressed
+    global localPress
     localString = "localString here"
     #vehicleID = int(input("Vehicle ID Number: "))
     print("Please enter vehicle ID...")
@@ -304,11 +326,11 @@ def main():
 
     print("GOT ID: " + str(vehicleID))
 
-    # FILEPATHS FOR READING DATA
+    # FILEPATHS FOR READING DATAv
     if (vehicleID == 1):
-        filepath = "leadsim.txt"
+        filepath = "guidesim1.txt"
     else:
-        filepath = "testrun.txt"
+        filepath = "localsim1.txt"
     vehicleTxt = open(filepath, 'r')
 
     # SETUP DATA FOR TESTING
@@ -325,6 +347,9 @@ def main():
             if (clientInList(message[1])):
                 # check to see if message is start
                 if (str(message[0])[2:-1] == "start"):  # a vehicle requested to start run
+                    print("Got start from slave")
+                    sendStartToClient()
+                    time.sleep(1)
                     operate = True
                     sendHeadToClient()
             else:
@@ -359,11 +384,15 @@ def main():
             else:
                 if (PTP_TEST):
                     print("Acquiring PTP Data...")
-                localString = gps.gpsread()
+#               localString = gps.gpsread()
+                ptpi.predict_update()
+                lat,lon,brg,vel = ptpi.ptp_read()
+                localString = "%s,%s,%s,%s"%(str(lat),str(lon),str(brg),str(vel))
+                print(localString)
                 message = s.recvfrom(BUFFER_SIZE)
                 if (str(message[0])[2:-1] == "getLocation"):
                     sendUDP(message[1][0], message[1][1], str(localString))
-                    localString = line.strip().split(',')
+                    localString = localString.strip().split(',')
                     print("\n--------------------------------------------------------------------")
                     print("Sending location data to: " + str(message[1]))
                     print("\tData: " + str(localString))
@@ -382,9 +411,16 @@ def main():
         sendUDP("<broadcast>", 5555, "client" + str(vehicleID))
         print("Waiting for start button press...")
         operate = False
+        if(localPress == False):
+            message = s.recvfrom(BUFFER_SIZE) # get start packet from remote
+            if(str(message[0])[2:-1] == "start"):
+                operate = True
+                print("Got remote start packet")
+            else:
+                print("ERROR: Got unknown packet in remote start")
+                print("\tData Was:",str(message[0])[2:-1])
         while (True):
             if (operate):
-                sendUDP("<broadcast>", 5555, "start")
                 recData = s.recvfrom(BUFFER_SIZE)  # get your leader and save it
                 leadAdd, leadPort = str(recData[0])[2:-1].split(':')
                 leadCar = (leadAdd, int(leadPort))
@@ -406,7 +442,7 @@ def main():
                 port = server_sock.getsockname()[1]
                 # unique UUID to connect with AVE Android Phone
                 uuid = "94f39d29-7d6d-437d-973b-fba39e49d4ee"
-                file = open("vehicle3.txt", "r")
+                #file = open("vehicle3.txt", "r")
                 advertise_service(server_sock, "AVECCPDataServer",
                                   service_id = uuid,
                                   service_classes = [ uuid, SERIAL_PORT_CLASS ],
@@ -414,34 +450,46 @@ def main():
 
                 while (operate):
                     # Confirm BT if set to AVE mode
-                    if (AveFlag):
-                        if(BTconnection == False):
-                            print("Waiting for connection on RFCOMM channel %d" % port)
-                            client_sock, client_info = server_sock.accept()
-                            BTconnection = True
-                            print("Accepted connection from ", client_info)
+#                    if (AveFlag):
+#                        if(BTconnection == False):
+#                            print("Waiting for connection on RFCOMM channel %d" % port)
+#                            client_sock, client_info = server_sock.accept()
+#                            BTconnection = True
+#                            print("Accepted connection from ", client_info)
 
                     # BREAKS ON INTERRUPT
                     try:
                         # BEGIN OPERATION (follower)
                         speed = 0 # initial speed
+                        testCount = 0 # for AVE_TEST
                         while (True):
                             ### CCP TO AVE ###
-                            turning = str(45)
-                            direction = "forward"
-                            speed = str(20)
-                            distance = str(1.23456)
+                            sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
+                            message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                            # if a stop signal is received stop the convoy
+                            if(str(message[0])[2:-1] == "stop"):
+                                operate = False
+                                break
+                                guideString = str(message[0])[2:-1] # guideString obtained
+                            guideString = guideString.strip("\\n").split(',')
+                            # Get GPS data from AVE
+#                           localString = client_sock.recv(1024)
+                            localString = "b'39.11,79.11,20,1.4'"
+                            localString = str(localString[2:-1])
+                            localString = localString.strip("\\n").split(',')
+                            ### AVE TO CCP
+                            if (AVE_TEST):
+                                localString = vehicleTxt.readlines()
+                                testCount += 1
+                            turning = calculateBearing(guideString, localString)
+                            direction = calculateDir(guideString, localString)
+                            speed = calculateSpeed(guideString, localString, speed)
+                            distance = calculateDist(guideString, localString)
                             offset = str(0)
-                            aline = turning + "," + direction + "," + speed + "," + distance + "," + offset
-                            client_sock.send(aline);
+                            aline = str(turning) + "," + str(direction) + "," + str(speed) + "," + str(distance) + "," + str(offset)
+#                           client_sock.send(aline);
                             print("String that was just sent: %s" % aline)
                             ### AVE TO CCP ###
-                            localString = client_sock.recv(1024)
-#                            stop,lon,lat,errcount=data.split(",")
-                            print("Stopwatch: %s" % stop)
-                            print("Received Longitude: %s" % lon)
-                            print("Received Latitude: %s" % lat)
-                            print("Error Count: %s" % errcount)
 
                     except IOError:
                         print("Connection disconnected!")
@@ -465,50 +513,128 @@ def main():
                 while (operate):
                     speed = 0
                     if (not USING_PTP):
+                        count = 0
                         for line in vehicleTxt:
+                            count +=1
+                            #print("ERROR: Line Number", count)
                             localString = line.strip().split(',') # local ptp data from file
                             sendUDP(leadCar[0], leadCar[1], "getLocation")  # ask for location from lead car
-                            message = s.recvfrom(BUFFER_SIZE) # message received from guide car
-                            # if a stop signal is received stop the convoy
-                            if(str(message[0])[2:-1] == "stop"):
-                                operate = False
-                                break
-                            guideString = str(message[0])[2:-1] # guideString obtained
-                            guideString = guideString.strip("\\n").split(',')
-                            # calculate the offsets for the data and print them here
-                            # drive commands can be formed here as well
-                            print("\n--------------------------------------------------------------------")
-                            print("Local PTP Data: " + str(localString))
-                            print("Guide PTP Data: " + str(guideString))
-                            speed = calculateSkid(guideString, localString, speed)
-                            #compare(guideString, localString)
-                            print("----------------------------------------------------------------------")
+                            message = ["b'getLocation'",""] # prime the while loop
+                            while(str(message[0])[2:-1] == "stop" or str(message[0])[2:-1] == "getLocation"):
+                                #print("IN LOOP MESSAGE: ",message[0])
+                                message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                                #print("\n\nGUIDE CAR SENT:\n\t",message[0],"\n\n")
+                                # if a stop signal is received stop the convoy
+                                if(str(message[0])[2:-1] == "stop"):
+                                    operate = False
+                                    #sendUDP("<broadcast>",5555,"stop")
+                                    break
+                                elif(str(message[0])[2:-1] == "getLocation"):
+                                    sendUDP(message[1][0], int(message[1][1]), str(line))
+                                    print("\n---------------------------------------------------------------")
+                                    print("Sending location data to: " + str(message[1]))
+                                    print("\tData: " + str(line))
+                                    print("-----------------------------------------------------------------\n")
+                                else:
+                                    guideString = str(message[0])[2:-1] # guideString obtained
+                                    guideString = guideString.strip("\\n").split(',')
+                                    # calculate the offsets for the data and print them here
+                                    # drive commands can be formed here as well
+                                    print("\n-----------------------------------------------------------------")
+                                    #print("Local PTP Data: " + str(localString))
+                                    #print("Guide PTP Data: " + str(guideString))
+                                    print("GPS DATA:")
+                                    print("Guide Latitude: ", getLatitude(guideString))
+                                    print("Local Latitude: ", getLatitude(localString))
+                                    print("Guide Longitude: ", getLongitude(guideString))
+                                    print("Local Longitude: ", getLongitude(localString))
+                                    print("Guide Line of Bearing: ", getLineOfBearing(guideString))
+                                    print("Local Line of Bearing: ", getLineOfBearing(localString))
+                                    print("Guide Velocity: ", getVelocity(guideString))
+                                    print("Local Velocity: ", getVelocity(localString))
+                                    print("----------------------")
+                                    speed = calculateSkid(guideString, localString, speed)
+                                    #compare(guideString, localString)
+                                    print("-------------------------------------------------------------------")
+                                    if(operate == False):
+                                        break;
+                            time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
                             if(operate == False):
                                 break;
-                            time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
                         print("End of sample PTP data reached, process will now exit.")
                         fullStop()
                         break
                     else:
-                        if (PTP_TEST):
-                            print("Acquiring PTP Data...")
-                        localString = gps.gpsread().strip.split(',')
-                        sendUDP(leadCar[0], leadCar[1], "getLocation")  # a$
-                        message = s.recvfrom(BUFFER_SIZE) # message receive$
+                        while(operate):
+                            if (PTP_TEST):
+                                print("Acquiring PTP Data...")
+                            ptpi.predict_update()
+                            lat,lon,brg,vel = ptpi.ptp_read()
+                            localString = "%s,%s,%s,%s"%(str(lat),str(lon),str(brg),str(vel))
+                            print(localString)
+#                           localString = gps.gpsread().strip.split(',')
+                            sendUDP(leadCar[0], leadCar[1], "getLocation")  # a$
+                            message = ["b'getLocation'",""] # prime the while loop
+#                           message = s.recvfrom(BUFFER_SIZE) # message receive$
+                            while(str(message[0])[2:-1] == "stop" or str(message[0])[2:-1] == "getLocation"):
+#                           while(True):
+                                #print("IN LOOP MESSAGE: ",message[0])
+                                message = s.recvfrom(BUFFER_SIZE) # message received from guide car
+                                #print("\n\nGUIDE CAR SENT:\n\t",message[0],"\n\n")
+                                # if a stop signal is received stop the convoy
+                                if(str(message[0])[2:-1] == "stop"):
+                                    operate = False
+                                    #sendUDP("<broadcast>",5555,"stop")
+                                    break
+                                elif(str(message[0])[2:-1] == "getLocation"):
+                                    sendUDP(message[1][0], int(message[1][1]), str(localString))
+                                else:
+                                    guideString = str(message[0])[2:-1] # guideString obtained
+                                    guideString = guideString.strip("\\n").split(',')
+                                    localString = localString.strip("\\n").split(',')
+                                    print(guideString)
+                                    # calculate the offsets for the data and print them here
+                                    # drive commands can be formed here as well
+                                    print("\n-----------------------------------------------------------------")
+                                    #print("Local PTP Data: " + str(localString))
+                                    #print("Guide PTP Data: " + str(guideString))
+                                    print("GPS DATA:")
+                                    print("Guide Latitude: ", getLatitude(guideString))
+                                    print("Local Latitude: ", getLatitude(localString))
+                                    print("Guide Longitude: ", getLongitude(guideString))
+                                    print("Local Longitude: ", getLongitude(localString))
+                                    print("Guide Line of Bearing: ", getLineOfBearing(guideString))
+                                    print("Local Line of Bearing: ", getLineOfBearing(localString))
+                                    print("Guide Velocity: ", getVelocity(guideString))
+                                    print("Local Velocity: ", getVelocity(localString))
+                                    print("----------------------")
+                                    speed = calculateSkid(guideString, localString, speed)
+                                    #compare(guideString, localString)
+                                    print("-------------------------------------------------------------------")
+                                    if(operate == False):
+                                        break;
+                            time.sleep(0.5)   # add artificial delay so test dosnt run to fast to be boring
+                            if(operate == False):
+                                break;
+                    #print("End of sample PTP data reached, process will now exit.")
+                    fullStop()
+                    break
+
+
                         # if a stop signal is received stop the convoy
-                        if(str(message[0])[2:-1] == "stop"):
-                            operate = False
-                            break
-                        guideString = str(message[0])[2:-1] # guideString o$
-                        guideString = guideString.strip("\\n").split(',')
-                        print("\n--------------------------------------------------------------------")
-                        print("Local PTP Data: " + str(localString))
-                        print("Guide PTP Data: " + str(guideString))
-                        print("Calculated Offsets:")
-                        speed = calculateSkid(guideString, localString, speed)
-                        #compare(guideString, localString)
-                        print("--------------------------------------------------------------------")
-                        speed = calculateSkid(guideString, localString, speed)
+#                        if(str(message[0])[2:-1] == "stop"):
+#                            operate = False
+#                            break
+#                        guideString = str(message[0])[2:-1] # guideString o$
+#                        guideString = guideString.strip("\\n").split(',')
+#                        print("\n--------------------------------------------------------------------")
+#                        print("Local PTP Data: " + str(localString))
+#                        print("Guide PTP Data: " + str(guideString))
+#                        print("Calculated Offsets:")
+#                        speed = calculateSkid(guideString, localString, speed)
+#                        #compare(guideString, localString)
+#                        print("--------------------------------------------------------------------")
+#                        speed = calculateSkid(guideString, localString, speed)
 
 
             # MOTOR SHUTOFF
